@@ -108,6 +108,14 @@ cp config.yaml.example config.yaml
 # Edit configuration file, set OpenAI API Key
 vim config.yaml
 ```
+or
+
+```bash
+# Edit env
+set OPENAI_API_KEY=""
+set OPENAI_BASE_URL=""
+set OPENAI_MODEL=""
+```
 
 4. **Start the platform**
 ```bash
