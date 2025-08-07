@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单社交平台</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>简单社交平台</h1>
+            <nav>
+                <button id="loginBtn">登录</button>
+                <button id="registerBtn">注册</button>
+            </nav>
+        </header>
+        
+        <main>
+            <section id="postForm">
+                <h2>发布动态</h2>
+                <textarea id="postContent" placeholder="分享你的想法..."></textarea>
+                <button id="publishBtn">发布</button>
+            </section>
+            
+            <section id="posts">
+                <h2>最新动态</h2>
+                <div id="postsList">
+                    <!-- 动态列表 -->
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>完整AI协作开发平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 登录界面样式 */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #fff, #f0f8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 主界面样式 */
+        .main-app {
+            display: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .balance-display {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* AI开发界面 */
+        .development-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .requirement-section, .progress-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .requirement-input {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            resize: vertical;
+        }
+
+        .cost-display {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .logs-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .log-entry {
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        /* 文档查看器 */
+        .document-viewer {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .document-content {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .document-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .chat-interface {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .chat-messages {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* 前端预览器 */
+        .frontend-preview {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .visual-editor {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .element-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .element-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .element-btn:hover, .element-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .property-editor {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* 充值界面 */
+        .recharge-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .plan-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .plan-card:hover, .plan-card.selected {
+            border-color: #4ade80;
+            transform: translateY(-5px);
+        }
+
+        .plan-price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4ade80;
+            margin: 10px 0;
+        }
+
+        .discount-badge {
+            background: #ef4444;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+        }
+
+        .payment-methods {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .payment-btn {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .payment-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .development-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .property-editor {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 通知样式 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success { background: #22c55e; }
+        .notification.error { background: #ef4444; }
+        .notification.info { background: #3b82f6; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录界面 -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1><i class="fas fa-robot"></i> AI协作开发平台</h1>
+                <p>智能AI驱动的全栈开发体验</p>
+            </div>
+            
+            <div class="input-group">
+                <label>用户名</label>
+                <input type="text" id="usernameInput" placeholder="请输入用户名" required>
+            </div>
+            
+            <div class="input-group">
+                <label>邮箱（可选）</label>
+                <input type="email" id="emailInput" placeholder="请输入邮箱（可选）">
+            </div>
+            
+            <div class="input-group">
+                <label>邀请码（可选）</label>
+                <input type="text" id="inviterCodeInput" placeholder="如果有朋友邀请，请输入邀请码">
+            </div>
+            
+            <button class="btn btn-primary" onclick="login()">
+                <i class="fas fa-sign-in-alt"></i> 登录/注册
+            </button>
+            
+            <div style="margin-top: 20px; text-align: center; font-size: 0.9rem; opacity: 0.8;">
+                <p>🎁 新用户福利：30个API配额</p>
+                <p>🆓 首次免费测试</p>
+                <p>💰 首次充值半价</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主应用界面 -->
+    <div id="mainApp" class="main-app">
+        <div class="container">
+            <!-- 顶部导航 -->
+            <div class="header">
+                <div>
+                    <h1><i class="fas fa-robot"></i> AI协作开发平台</h1>
+                    <p id="welcomeText">欢迎回来！</p>
+                </div>
+                <div class="user-info">
+                    <div class="balance-display">
+                        <i class="fas fa-coins"></i> <span id="apiBalance">30</span> API配额
+                    </div>
+                    <button class="btn" onclick="logout()" style="padding: 8px 16px; background: rgba(255,255,255,0.2);">
+                        <i class="fas fa-sign-out-alt"></i> 退出
+                    </button>
+                </div>
+            </div>
+
+            <!-- 标签页导航 -->
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('develop')">
+                    <i class="fas fa-code"></i> AI开发
+                </div>
+                <div class="tab" onclick="switchTab('projects')">
+                    <i class="fas fa-folder"></i> 项目管理
+                </div>
+                <div class="tab" onclick="switchTab('recharge')">
+                    <i class="fas fa-credit-card"></i> 充值中心
+                </div>
+                <div class="tab" onclick="switchTab('share')">
+                    <i class="fas fa-share"></i> 分享赚配额
+                </div>
+            </div>
+
+            <!-- AI开发标签页 -->
+            <div id="develop" class="tab-content active">
+                <div class="development-container">
+                    <div class="requirement-section">
+                        <h3><i class="fas fa-edit"></i> 项目需求</h3>
+                        <textarea id="requirementInput" class="requirement-input" 
+                                  placeholder="请详细描述您的项目需求，例如：
+
+我需要一个简单的社交平台，包含：
+- 用户注册登录系统
+- 个人资料管理
+- 发布动态功能
+- 关注和取关好友
+- 点赞和评论系统
+- 私信功能
+- 搜索用户
+- 热门动态推荐
+
+技术要求：
+- 前端：现代化界面，支持移动端
+- 后端：Python + FastAPI
+- 数据库：SQLite
+- 部署：Docker容器化
+
+请生成完整可运行的代码。"></textarea>
+
+                        <div class="cost-display">
+                            <h4><i class="fas fa-calculator"></i> 开发成本</h4>
+                            <div id="costInfo">
+                                <p id="freeTestInfo" class="hidden">🎁 您有一次免费测试机会！</p>
+                                <p>测试模式：1个API配额</p>
+                                <p>完整模式：30个API配额</p>
+                                <p>当前余额：<span id="currentBalance">30</span>个配额</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px;">
+                            <button id="testBtn" class="btn btn-primary" style="flex: 1;" onclick="startAIDevelopment(true)">
+                                <i class="fas fa-flask"></i> 测试模式开发
+                            </button>
+                            <button id="fullBtn" class="btn" style="flex: 1; background: linear-gradient(135deg, #f59e0b, #d97706);" onclick="startAIDevelopment(false)">
+                                <i class="fas fa-rocket"></i> 完整模式开发
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <h3><i class="fas fa-tasks"></i> 开发进度</h3>
+                        <div class="progress-bar">
+                            <div id="progressFill" class="progress-fill"></div>
+                        </div>
+                        <p id="progressText">等待开始...</p>
+                        
+                        <div class="logs-container">
+                            <div id="aiLogs"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 文档查看器 -->
+                <div id="documentViewer" class="document-viewer hidden">
+                    <h3><i class="fas fa-file-alt"></i> 项目文档</h3>
+                    <div id="documentContent" class="document-content">
+                        文档加载中...
+                    </div>
+                    <div class="document-actions">
+                        <button class="btn btn-primary" onclick="confirmDocument()">
+                            <i class="fas fa-check"></i> 确认文档
+                        </button>
+                        <button class="btn" style="background: #f59e0b;" onclick="showDocumentChat()">
+                            <i class="fas fa-comments"></i> 对话修改
+                        </button>
+                    </div>
+                    
+                    <!-- 文档对话界面 -->
+                    <div id="documentChat" class="chat-interface hidden">
+                        <h4><i class="fas fa-robot"></i> 与AI对话修改文档</h4>
+                        <div id="documentChatMessages" class="chat-messages"></div>
+                        <div class="chat-input-container">
+                            <input type="text" id="documentChatInput" class="chat-input" placeholder="请描述您希望如何修改文档...">
+                            <button class="btn btn-primary" onclick="sendDocumentMessage()">发送</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 前端预览器 -->
+                <div id="frontendPreview" class="frontend-preview hidden">
+                    <h3><i class="fas fa-eye"></i> 前端界面预览</h3>
+                    <iframe id="previewFrame" class="preview-frame" src=""></iframe>
+                    <div class="document-actions">
+                        <button class="btn btn-primary" onclick="confirmFrontend()">
+                            <i class="fas fa-check"></i> 确认界面
+                        </button>
+                        <button class="btn" style="background: #f59e0b;" onclick="showFrontendChat()">
+                            <i class="fas fa-comments"></i> 对话修改
+                        </button>
+                        <button class="btn" style="background: #8b5cf6;" onclick="showVisualEditor()">
+                            <i class="fas fa-paint-brush"></i> 可视化编辑
+                        </button>
+                    </div>
+                    
+                    <!-- 前端对话界面 -->
+                    <div id="frontendChat" class="chat-interface hidden">
+                        <h4><i class="fas fa-robot"></i> 与AI对话修改界面</h4>
+                        <div id="frontendChatMessages" class="chat-messages"></div>
+                        <div class="chat-input-container">
+                            <input type="text" id="frontendChatInput" class="chat-input" placeholder="请描述您希望如何修改界面...">
+                            <button class="btn btn-primary" onclick="sendFrontendMessage()">发送</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 可视化编辑器 -->
+                    <div id="visualEditor" class="visual-editor hidden">
+                        <h4><i class="fas fa-tools"></i> 可视化界面编辑器</h4>
+                        <div class="element-selector">
+                            <button class="element-btn active" onclick="selectElement('button')">按钮</button>
+                            <button class="element-btn" onclick="selectElement('text')">文本</button>
+                            <button class="element-btn" onclick="selectElement('input')">输入框</button>
+                            <button class="element-btn" onclick="selectElement('div')">容器</button>
+                            <button class="element-btn" onclick="selectElement('color')">配色</button>
+                        </div>
+                        
+                        <div class="property-editor">
+                            <div class="input-group">
+                                <label>背景颜色</label>
+                                <input type="color" id="bgColorInput" value="#667eea">
+                            </div>
+                            <div class="input-group">
+                                <label>文字颜色</label>
+                                <input type="color" id="textColorInput" value="#ffffff">
+                            </div>
+                            <div class="input-group">
+                                <label>字体大小</label>
+                                <input type="range" id="fontSizeInput" min="12" max="24" value="16">
+                            </div>
+                            <div class="input-group">
+                                <label>边距</label>
+                                <input type="range" id="paddingInput" min="5" max="50" value="20">
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="applyVisualChanges()">
+                            <i class="fas fa-magic"></i> 应用修改
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 项目管理标签页 -->
+            <div id="projects" class="tab-content">
+                <h2><i class="fas fa-folder-open"></i> 项目管理</h2>
+                <div id="projectsList">
+                    <p>加载中...</p>
+                </div>
+            </div>
+
+            <!-- 充值中心标签页 -->
+            <div id="recharge" class="tab-content">
+                <h2><i class="fas fa-credit-card"></i> 充值中心</h2>
+                
+                <div id="discountBanner" class="cost-display hidden">
+                    <h3>🎉 首次充值半价优惠！</h3>
+                    <p>新用户专享，所有套餐均享受50%折扣</p>
+                </div>
+                
+                <div class="recharge-plans">
+                    <div class="plan-card" onclick="selectPlan('basic', 50, 100)" style="position: relative;">
+                        <div id="basicDiscount" class="discount-badge hidden">半价</div>
+                        <h3>基础套餐</h3>
+                        <div class="plan-price">
+                            <span id="basicOriginalPrice">￥50</span>
+                            <div id="basicDiscountPrice" class="hidden" style="font-size: 1.2rem; text-decoration: line-through; opacity: 0.7;">￥50</div>
+                        </div>
+                        <p>100个API配额</p>
+                        <small>适合小型项目测试</small>
+                    </div>
+                    
+                    <div class="plan-card" onclick="selectPlan('pro', 120, 300)" style="position: relative;">
+                        <div id="proDiscount" class="discount-badge hidden">半价</div>
+                        <h3>专业套餐</h3>
+                        <div class="plan-price">
+                            <span id="proOriginalPrice">￥120</span>
+                            <div id="proDiscountPrice" class="hidden" style="font-size: 1.2rem; text-decoration: line-through; opacity: 0.7;">￥120</div>
+                        </div>
+                        <p>300个API配额</p>
+                        <small>适合中型项目开发</small>
+                    </div>
+                    
+                    <div class="plan-card" onclick="selectPlan('enterprise', 200, 800)" style="position: relative;">
+                        <div id="enterpriseDiscount" class="discount-badge hidden">半价</div>
+                        <h3>企业套餐</h3>
+                        <div class="plan-price">
+                            <span id="enterpriseOriginalPrice">￥200</span>
+                            <div id="enterpriseDiscountPrice" class="hidden" style="font-size: 1.2rem; text-decoration: line-through; opacity: 0.7;">￥200</div>
+                        </div>
+                        <p>800个API配额</p>
+                        <small>适合大型项目或团队</small>
+                    </div>
+                </div>
+
+                <div id="selectedPlanInfo" class="cost-display hidden">
+                    <h4>选择的套餐</h4>
+                    <p id="planDetails"></p>
+                </div>
+
+                <div id="paymentMethods" class="payment-methods hidden">
+                    <button class="payment-btn" onclick="processPayment('wechat')">
+                        <i class="fab fa-weixin"></i> 微信支付
+                    </button>
+                    <button class="payment-btn" onclick="processPayment('alipay')">
+                        <i class="fab fa-alipay"></i> 支付宝
+                    </button>
+                </div>
+            </div>
+
+            <!-- 分享赚配额标签页 -->
+            <div id="share" class="tab-content">
+                <h2><i class="fas fa-gift"></i> 分享赚配额</h2>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <h3>我的专属邀请码</h3>
+                    <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 15px; margin: 20px 0;">
+                        <div style="font-size: 2rem; font-weight: bold; margin-bottom: 10px;">
+                            <span id="invitationCode">加载中...</span>
+                            <button class="btn" onclick="copyInvitationCode()" style="margin-left: 15px; padding: 8px 16px;">
+                                <i class="fas fa-copy"></i> 复制
+                            </button>
+                        </div>
+                        <p>分享邀请码给朋友，朋友注册成功您获得30配额</p>
+                        <p>朋友充值时，您还能获得其充值配额的15%奖励！</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <h3>快速分享</h3>
+                    <div style="display: flex; justify-content: center; gap: 20px; margin: 20px 0;">
+                        <button class="payment-btn" onclick="shareToWeChat()">
+                            <i class="fab fa-weixin"></i> 分享到微信
+                        </button>
+                        <button class="payment-btn" onclick="shareToWeibo()">
+                            <i class="fab fa-weibo"></i> 分享到微博
+                        </button>
+                        <button class="payment-btn" onclick="shareToQQ()">
+                            <i class="fab fa-qq"></i> 分享到QQ
+                        </button>
+                    </div>
+                    <p style="font-size: 0.9rem; opacity: 0.8;">每次分享可获得5个配额奖励</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentUserId = null;
+        let currentProject = null;
+        let selectedPlan = null;
+        let ws = null;
+        let hasUsedFreeTest = false;
+        let isFirstTimeUser = true;
+
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+        });
+
+        // 检查登录状态
+        function checkLoginStatus() {
+            const savedUserId = localStorage.getItem('userId');
+            const loginTime = localStorage.getItem('loginTime');
+            
+            // 检查是否在7天内
+            if (savedUserId && loginTime) {
+                const daysSinceLogin = (Date.now() - parseInt(loginTime)) / (1000 * 60 * 60 * 24);
+                if (daysSinceLogin < 7) {
+                    currentUserId = savedUserId;
+                    showMainApp();
+                    return;
+                }
+            }
+            
+            // 显示登录界面
+            showLoginPage();
+        }
+
+        // 显示登录页面
+        function showLoginPage() {
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+        }
+
+        // 显示主应用
+        function showMainApp() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            loadUserData();
+            connectWebSocket();
+        }
+
+        // 登录
+        async function login() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim();
+            const inviterCode = document.getElementById('inviterCodeInput').value.trim();
+
+            if (!username) {
+                showNotification('请输入用户名', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        inviter_code: inviterCode
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    currentUserId = result.user_id;
+                    localStorage.setItem('userId', currentUserId);
+                    localStorage.setItem('loginTime', Date.now().toString());
+                    
+                    showNotification('登录成功！', 'success');
+                    showMainApp();
+                } else {
+                    showNotification(result.detail || '登录失败', 'error');
+                }
+            } catch (error) {
+                showNotification('网络错误，请重试', 'error');
+            }
+        }
+
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('userId');
+            localStorage.removeItem('loginTime');
+            currentUserId = null;
+            if (ws) ws.close();
+            showLoginPage();
+            showNotification('已退出登录', 'info');
+        }
+
+        // 连接WebSocket
+        function connectWebSocket() {
+            if (!currentUserId) return;
+
+            ws = new WebSocket(`ws://localhost:8892/ws?user_id=${currentUserId}`);
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+
+            ws.onclose = function() {
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        // 处理WebSocket消息
+        function handleWebSocketMessage(data) {
+            switch(data.type) {
+                case 'ai_log':
+                    addAILog(data);
+                    break;
+                case 'project_ready_for_review':
+                    handleProjectReady(data);
+                    break;
+            }
+        }
+
+        // 加载用户数据
+        async function loadUserData() {
+            if (!currentUserId) return;
+
+            try {
+                const response = await fetch(`/api/user-stats/${currentUserId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const user = data.user;
+                    document.getElementById('welcomeText').textContent = `欢迎回来，${user.username}！`;
+                    document.getElementById('apiBalance').textContent = user.api_balance;
+                    document.getElementById('currentBalance').textContent = user.api_balance;
+                    
+                    // 检查是否首次用户
+                    isFirstTimeUser = user.total_recharge === 0;
+                    hasUsedFreeTest = data.projects.total > 0;
+                    
+                    updateCostDisplay();
+                    updateDiscountDisplay();
+                    loadInvitationCode();
+                }
+            } catch (error) {
+                console.error('加载用户数据失败:', error);
+            }
+        }
+
+        // 更新费用显示
+        function updateCostDisplay() {
+            const freeTestInfo = document.getElementById('freeTestInfo');
+            if (!hasUsedFreeTest) {
+                freeTestInfo.classList.remove('hidden');
+                document.getElementById('testBtn').innerHTML = '<i class="fas fa-gift"></i> 免费测试';
+            } else {
+                freeTestInfo.classList.add('hidden');
+            }
+        }
+
+        // 更新折扣显示
+        function updateDiscountDisplay() {
+            if (isFirstTimeUser) {
+                document.getElementById('discountBanner').classList.remove('hidden');
+                ['basic', 'pro', 'enterprise'].forEach(plan => {
+                    document.getElementById(plan + 'Discount').classList.remove('hidden');
+                });
+            }
+        }
+
+        // 加载邀请码
+        async function loadInvitationCode() {
+            try {
+                const response = await fetch(`/api/invitation-stats/${currentUserId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('invitationCode').textContent = data.invitation_code || '加载中...';
+                }
+            } catch (error) {
+                console.error('加载邀请码失败:', error);
+            }
+        }
+
+        // 标签页切换
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 启动AI开发
+        async function startAIDevelopment(testMode) {
+            const requirement = document.getElementById('requirementInput').value.trim();
+            
+            if (!requirement) {
+                showNotification('请输入项目需求', 'error');
+                return;
+            }
+
+            const button = testMode ? document.getElementById('testBtn') : document.getElementById('fullBtn');
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI开发中...';
+
+            try {
+                const response = await fetch('/api/start-integrated-ai-development', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        requirement: requirement,
+                        test_mode: testMode
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showNotification('AI开发已启动！', 'success');
+                    updateProgress(10, 'AI开发流程启动中...');
+                    
+                    // 如果使用了免费测试，更新状态
+                    if (testMode && !hasUsedFreeTest) {
+                        hasUsedFreeTest = true;
+                        updateCostDisplay();
+                    }
+                    
+                    // 更新余额显示
+                    loadUserData();
+                } else {
+                    throw new Error(result.detail || 'AI开发启动失败');
+                }
+            } catch (error) {
+                showNotification(error.message, 'error');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
+
+        // 更新进度
+        function updateProgress(percentage, text) {
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+
+        // 添加AI日志
+        function addAILog(data) {
+            const logsContainer = document.getElementById('aiLogs');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <div><strong>[${data.ai_name}]</strong> ${data.action}: ${data.message}</div>
+                <div style="font-size: 0.8rem; opacity: 0.7;">${new Date(data.timestamp).toLocaleTimeString()}</div>
+            `;
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+
+            // 更新进度
+            const progressMap = {
+                '需求分析': 20,
+                '代码生成': 60,
+                '代码生成完成': 90,
+                '项目完成': 100
+            };
+            
+            const progress = progressMap[data.action] || 0;
+            if (progress > 0) {
+                updateProgress(progress, data.message);
+            }
+        }
+
+        // 处理项目就绪
+        function handleProjectReady(data) {
+            currentProject = data.project;
+            updateProgress(100, '项目生成完成！');
+            
+            // 显示文档查看器
+            document.getElementById('documentViewer').classList.remove('hidden');
+            document.getElementById('documentContent').innerHTML = formatDocument(data.project.document_content);
+            
+            // 显示前端预览器
+            if (data.preview_url) {
+                document.getElementById('frontendPreview').classList.remove('hidden');
+                document.getElementById('previewFrame').src = data.preview_url;
+            }
+            
+            showNotification('项目生成完成！请查看文档和前端界面', 'success');
+        }
+
+        // 格式化文档
+        function formatDocument(docContent) {
+            try {
+                const doc = JSON.parse(docContent);
+                let html = `
+                    <h3>${doc.project_name || '项目文档'}</h3>
+                    <p><strong>项目类型：</strong>${doc.project_type || 'Web应用'}</p>
+                    <p><strong>技术栈：</strong>${doc.tech_stack ? doc.tech_stack.join(', ') : 'Python, FastAPI, React'}</p>
+                `;
+                
+                if (doc.features) {
+                    html += '<h4>核心功能：</h4><ul>';
+                    doc.features.forEach(feature => {
+                        html += `<li>${feature}</li>`;
+                    });
+                    html += '</ul>';
+                }
+                
+                return html;
+            } catch (e) {
+                return docContent || '文档生成中...';
+            }
+        }
+
+        // 确认文档
+        async function confirmDocument() {
+            if (!currentProject) return;
+            
+            try {
+                const response = await fetch('/api/review-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: currentProject.id,
+                        user_id: currentUserId,
+                        document_content: currentProject.document_content,
+                        modification_type: 'confirm'
+                    })
+                });
+
+                if (response.ok) {
+                    showNotification('文档已确认！', 'success');
+                    currentProject.document_confirmed = true;
+                }
+            } catch (error) {
+                showNotification('确认失败', 'error');
+            }
+        }
+
+        // 显示文档对话
+        function showDocumentChat() {
+            document.getElementById('documentChat').classList.remove('hidden');
+        }
+
+        // 发送文档修改消息
+        async function sendDocumentMessage() {
+            const input = document.getElementById('documentChatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // 显示用户消息
+            addChatMessage('documentChatMessages', '用户', message);
+            input.value = '';
+
+            try {
+                const response = await fetch('/api/review-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: currentProject.id,
+                        user_id: currentUserId,
+                        document_content: currentProject.document_content,
+                        modification_type: 'modify',
+                        feedback: message
+                    })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    addChatMessage('documentChatMessages', 'AI', '文档已根据您的要求进行修改');
+                    document.getElementById('documentContent').innerHTML = formatDocument(result.document);
+                    currentProject.document_content = result.document;
+                }
+            } catch (error) {
+                addChatMessage('documentChatMessages', 'AI', '修改失败，请重试');
+            }
+        }
+
+        // 添加聊天消息
+        function addChatMessage(containerId, sender, message) {
+            const container = document.getElementById(containerId);
+            const messageDiv = document.createElement('div');
+            messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            messageDiv.style.margin = '5px 0';
+            messageDiv.style.padding = '5px';
+            messageDiv.style.background = sender === '用户' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(59, 130, 246, 0.2)';
+            messageDiv.style.borderRadius = '5px';
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // 确认前端
+        async function confirmFrontend() {
+            if (!currentProject) return;
+            
+            try {
+                const response = await fetch('/api/review-frontend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: currentProject.id,
+                        user_id: currentUserId,
+                        preview_url: currentProject.frontend_preview_url,
+                        modification_type: 'confirm'
+                    })
+                });
+
+                if (response.ok) {
+                    showNotification('前端界面已确认！可以进行部署了', 'success');
+                    currentProject.frontend_confirmed = true;
+                }
+            } catch (error) {
+                showNotification('确认失败', 'error');
+            }
+        }
+
+        // 显示前端对话
+        function showFrontendChat() {
+            document.getElementById('frontendChat').classList.remove('hidden');
+        }
+
+        // 发送前端修改消息
+        async function sendFrontendMessage() {
+            const input = document.getElementById('frontendChatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addChatMessage('frontendChatMessages', '用户', message);
+            input.value = '';
+
+            try {
+                const response = await fetch('/api/review-frontend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: currentProject.id,
+                        user_id: currentUserId,
+                        preview_url: currentProject.frontend_preview_url,
+                        modification_type: 'modify',
+                        feedback: message
+                    })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    addChatMessage('frontendChatMessages', 'AI', '界面已根据您的要求进行修改');
+                    document.getElementById('previewFrame').src = result.preview_url + '?' + Date.now();
+                }
+            } catch (error) {
+                addChatMessage('frontendChatMessages', 'AI', '修改失败，请重试');
+            }
+        }
+
+        // 显示可视化编辑器
+        function showVisualEditor() {
+            document.getElementById('visualEditor').classList.remove('hidden');
+        }
+
+        // 选择编辑元素
+        function selectElement(elementType) {
+            document.querySelectorAll('.element-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // 应用可视化修改
+        function applyVisualChanges() {
+            const bgColor = document.getElementById('bgColorInput').value;
+            const textColor = document.getElementById('textColorInput').value;
+            const fontSize = document.getElementById('fontSizeInput').value;
+            const padding = document.getElementById('paddingInput').value;
+
+            // 模拟应用修改
+            showNotification('界面修改已应用！', 'success');
+            
+            // 这里可以发送修改到后端
+            sendVisualChangesToBackend({
+                backgroundColor: bgColor,
+                textColor: textColor,
+                fontSize: fontSize + 'px',
+                padding: padding + 'px'
+            });
+        }
+
+        // 发送可视化修改到后端
+        async function sendVisualChangesToBackend(changes) {
+            try {
+                const response = await fetch('/api/review-frontend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: currentProject.id,
+                        user_id: currentUserId,
+                        preview_url: currentProject.frontend_preview_url,
+                        modification_type: 'modify',
+                        ui_changes: changes
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('previewFrame').src = result.preview_url + '?' + Date.now();
+                }
+            } catch (error) {
+                console.error('应用可视化修改失败:', error);
+            }
+        }
+
+        // 选择套餐
+        function selectPlan(planType, price, quota) {
+            document.querySelectorAll('.plan-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.plan-card').classList.add('selected');
+            
+            selectedPlan = { type: planType, price: price, quota: quota };
+            
+            const actualPrice = isFirstTimeUser ? price * 0.5 : price;
+            document.getElementById('selectedPlanInfo').classList.remove('hidden');
+            document.getElementById('planDetails').innerHTML = `
+                ${planType}套餐 - ${quota}个API配额<br>
+                ${isFirstTimeUser ? `原价：￥${price} → 优惠价：￥${actualPrice}（半价）` : `价格：￥${price}`}
+            `;
+            
+            document.getElementById('paymentMethods').classList.remove('hidden');
+        }
+
+        // 处理支付
+        async function processPayment(method) {
+            if (!selectedPlan) return;
+            
+            try {
+                const response = await fetch('/api/recharge', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        amount: selectedPlan.price,
+                        api_quota: selectedPlan.quota,
+                        payment_method: method
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    if (result.discount_applied) {
+                        showNotification(`充值成功！${result.discount_applied}，实付￥${result.actual_amount}，获得${selectedPlan.quota}配额`, 'success');
+                        isFirstTimeUser = false;
+                        updateDiscountDisplay();
+                    } else {
+                        showNotification(`充值成功！获得${selectedPlan.quota}个API配额`, 'success');
+                    }
+                    
+                    loadUserData();
+                } else {
+                    showNotification(result.message || '充值失败', 'error');
+                }
+            } catch (error) {
+                showNotification('网络错误', 'error');
+            }
+        }
+
+        // 分享功能
+        async function shareToWeChat() {
+            await createShare('platform', 'wechat');
+            showNotification('分享成功！获得5配额奖励', 'success');
+        }
+
+        async function shareToWeibo() {
+            await createShare('platform', 'weibo');
+            showNotification('分享成功！获得5配额奖励', 'success');
+        }
+
+        async function shareToQQ() {
+            await createShare('platform', 'qq');
+            showNotification('分享成功！获得5配额奖励', 'success');
+        }
+
+        async function createShare(shareType, platform) {
+            try {
+                await fetch('/api/share', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        share_type: shareType,
+                        share_platform: platform,
+                        share_content: '分享AI协作开发平台'
+                    })
+                });
+                loadUserData();
+            } catch (error) {
+                console.error('分享失败:', error);
+            }
+        }
+
+        // 复制邀请码
+        function copyInvitationCode() {
+            const invitationCode = document.getElementById('invitationCode').textContent;
+            navigator.clipboard.writeText(invitationCode).then(() => {
+                showNotification('邀请码已复制！', 'success');
+            });
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

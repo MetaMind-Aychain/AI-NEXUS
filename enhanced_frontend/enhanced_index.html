@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>增强多用户AI协作开发平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #fff, #f0f8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+        }
+
+        .tab.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .user-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4ade80;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .input-group input::placeholder,
+        .input-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .project-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .project-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-completed { background: #22c55e; }
+        .status-pending { background: #f59e0b; }
+        .status-error { background: #ef4444; }
+        .status-deploying { background: #3b82f6; }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+            transition: width 0.3s ease;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .logs-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+
+        .log-entry {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .log-timestamp {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .payment-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .payment-option {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .payment-option:hover,
+        .payment-option.selected {
+            border-color: #4ade80;
+            transform: translateY(-5px);
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .share-btn {
+            padding: 15px;
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .share-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .share-wechat { background: #07c160; }
+        .share-weibo { background: #e6162d; }
+        .share-qq { background: #12b7f5; }
+
+        .hidden { display: none !important; }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success { background: #22c55e; }
+        .notification.error { background: #ef4444; }
+        .notification.info { background: #3b82f6; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .document-editor {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .document-editor textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                margin: 2px;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            .user-stats {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .project-actions {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 页面标题 -->
+        <div class="header">
+            <h1><i class="fas fa-robot"></i> 增强多用户AI协作开发平台</h1>
+            <p>体验完整的AI驱动开发流程 - 文档确认、前端预览、一键部署</p>
+        </div>
+
+        <!-- 用户信息栏 -->
+        <div class="user-info">
+            <div>
+                <h3 id="userName">游客模式</h3>
+                <p id="userTier">基础版用户</p>
+            </div>
+            <div class="user-stats">
+                <div class="stat">
+                    <div class="stat-value" id="apiBalance">100</div>
+                    <div class="stat-label">API余额</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="projectCount">0</div>
+                    <div class="stat-label">项目数量</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="invitationCount">0</div>
+                    <div class="stat-label">邀请奖励</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 标签页导航 -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('develop')">
+                <i class="fas fa-code"></i> AI开发
+            </div>
+            <div class="tab" onclick="switchTab('projects')">
+                <i class="fas fa-folder"></i> 项目管理
+            </div>
+            <div class="tab" onclick="switchTab('recharge')">
+                <i class="fas fa-credit-card"></i> 充值中心
+            </div>
+            <div class="tab" onclick="switchTab('share')">
+                <i class="fas fa-share"></i> 分享奖励
+            </div>
+            <div class="tab" onclick="switchTab('account')">
+                <i class="fas fa-user"></i> 账户中心
+            </div>
+        </div>
+
+        <!-- AI开发标签页 -->
+        <div id="develop" class="tab-content active">
+            <h2><i class="fas fa-magic"></i> AI协作开发</h2>
+            
+            <!-- 模式选择 -->
+            <div class="input-group">
+                <label>开发模式</label>
+                <select id="developMode">
+                    <option value="true">测试模式（快速，1配额）</option>
+                    <option value="false">真实模式（完整AI，10配额）</option>
+                </select>
+            </div>
+
+            <!-- 需求输入 -->
+            <div class="input-group">
+                <label>项目需求描述</label>
+                <textarea id="requirementInput" rows="6" 
+                          placeholder="请详细描述您的项目需求，例如：我需要一个简单的社交平台，包含用户注册登录、发布动态、关注好友、点赞评论等功能。要求界面简洁美观，支持移动端访问..."></textarea>
+            </div>
+
+            <button id="startButton" class="btn btn-primary" onclick="startAIDevelopment()">
+                <i class="fas fa-rocket"></i> 启动AI协作开发
+            </button>
+
+            <!-- 开发进度 -->
+            <div id="progressSection" class="hidden">
+                <h3>开发进度</h3>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                </div>
+                <p id="progressText">准备开始...</p>
+
+                <!-- AI日志 -->
+                <div id="logsContainer" class="logs-container">
+                    <h4>AI协作日志</h4>
+                    <div id="aiLogs"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 项目管理标签页 -->
+        <div id="projects" class="tab-content">
+            <h2><i class="fas fa-folder-open"></i> 项目管理</h2>
+            <div id="projectsList">
+                <p>加载中...</p>
+            </div>
+        </div>
+
+        <!-- 充值中心标签页 -->
+        <div id="recharge" class="tab-content">
+            <h2><i class="fas fa-credit-card"></i> 充值中心</h2>
+            
+            <div class="payment-options">
+                <div class="payment-option" onclick="selectPaymentOption('basic')">
+                    <h3>基础套餐</h3>
+                    <div class="stat-value">￥19</div>
+                    <p>100个API配额</p>
+                    <small>适合小型项目</small>
+                </div>
+                <div class="payment-option" onclick="selectPaymentOption('pro')">
+                    <h3>专业套餐</h3>
+                    <div class="stat-value">￥49</div>
+                    <p>300个API配额</p>
+                    <small>适合中型项目</small>
+                </div>
+                <div class="payment-option" onclick="selectPaymentOption('enterprise')">
+                    <h3>企业套餐</h3>
+                    <div class="stat-value">￥99</div>
+                    <p>800个API配额</p>
+                    <small>适合大型项目</small>
+                </div>
+            </div>
+
+            <div id="paymentMethods" class="hidden">
+                <h3>选择支付方式</h3>
+                <div style="display: flex; gap: 20px; justify-content: center; margin: 20px 0;">
+                    <button class="btn btn-secondary" onclick="processPayment('wechat')">
+                        <i class="fab fa-weixin"></i> 微信支付
+                    </button>
+                    <button class="btn btn-secondary" onclick="processPayment('alipay')">
+                        <i class="fab fa-alipay"></i> 支付宝
+                    </button>
+                </div>
+            </div>
+
+            <div id="rechargeHistory">
+                <h3>充值记录</h3>
+                <div id="rechargeRecords">加载中...</div>
+            </div>
+        </div>
+
+        <!-- 分享奖励标签页 -->
+        <div id="share" class="tab-content">
+            <h2><i class="fas fa-gift"></i> 分享奖励</h2>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <h3>我的邀请码</h3>
+                <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin: 20px 0;">
+                    <span id="invitationCode" style="font-size: 1.5rem; font-weight: bold;">加载中...</span>
+                    <button class="btn btn-secondary" onclick="copyInvitationCode()" style="margin-left: 15px;">
+                        <i class="fas fa-copy"></i> 复制
+                    </button>
+                </div>
+                <p>邀请新用户注册，获得30个API配额奖励</p>
+                <p>好友充值时，您还能获得其充值配额的15%奖励</p>
+            </div>
+
+            <div class="share-buttons">
+                <a href="#" class="share-btn share-wechat" onclick="shareToWeChat()">
+                    <i class="fab fa-weixin"></i>
+                </a>
+                <a href="#" class="share-btn share-weibo" onclick="shareToWeibo()">
+                    <i class="fab fa-weibo"></i>
+                </a>
+                <a href="#" class="share-btn share-qq" onclick="shareToQQ()">
+                    <i class="fab fa-qq"></i>
+                </a>
+            </div>
+
+            <div id="shareHistory">
+                <h3>分享记录</h3>
+                <div id="shareRecords">加载中...</div>
+            </div>
+        </div>
+
+        <!-- 账户中心标签页 -->
+        <div id="account" class="tab-content">
+            <h2><i class="fas fa-user-cog"></i> 账户中心</h2>
+            
+            <div class="input-group">
+                <label>用户名</label>
+                <input type="text" id="usernameInput" placeholder="请输入用户名">
+            </div>
+            
+            <div class="input-group">
+                <label>邮箱（可选）</label>
+                <input type="email" id="emailInput" placeholder="请输入邮箱">
+            </div>
+
+            <div class="input-group">
+                <label>邀请码（可选）</label>
+                <input type="text" id="inviterCodeInput" placeholder="如果有朋友邀请码，请输入">
+            </div>
+
+            <button class="btn btn-primary" onclick="login()">
+                <i class="fas fa-sign-in-alt"></i> 登录/注册
+            </button>
+
+            <div id="userDetails" class="hidden" style="margin-top: 30px;">
+                <h3>账户详情</h3>
+                <div id="userStats">加载中...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框 -->
+    <div id="documentModal" class="modal">
+        <div class="modal-content">
+            <h3>项目文档确认</h3>
+            <div class="document-editor">
+                <textarea id="documentContent" rows="15" placeholder="项目文档内容..."></textarea>
+            </div>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="confirmDocument()">确认文档</button>
+                <button class="btn btn-secondary" onclick="modifyDocument()">修改文档</button>
+                <button class="btn btn-danger" onclick="closeModal('documentModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="frontendModal" class="modal">
+        <div class="modal-content">
+            <h3>前端界面预览</h3>
+            <iframe id="frontendPreview" width="100%" height="400px" style="border: none; border-radius: 10px;"></iframe>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="confirmFrontend()">确认界面</button>
+                <button class="btn btn-secondary" onclick="modifyFrontend()">修改界面</button>
+                <button class="btn btn-danger" onclick="closeModal('frontendModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentUserId = null;
+        let currentProject = null;
+        let selectedPaymentPlan = null;
+        let ws = null;
+
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查本地存储的用户信息
+            const savedUserId = localStorage.getItem('userId');
+            if (savedUserId) {
+                currentUserId = savedUserId;
+                loadUserData();
+                connectWebSocket();
+            }
+        });
+
+        // 标签页切换
+        function switchTab(tabName) {
+            // 隐藏所有标签页内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 移除所有标签页的激活状态
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 显示选中的标签页内容
+            document.getElementById(tabName).classList.add('active');
+            
+            // 激活选中的标签页
+            event.target.closest('.tab').classList.add('active');
+
+            // 加载对应的数据
+            switch(tabName) {
+                case 'projects':
+                    loadProjects();
+                    break;
+                case 'recharge':
+                    loadRechargeRecords();
+                    break;
+                case 'share':
+                    loadShareData();
+                    break;
+                case 'account':
+                    if (currentUserId) {
+                        loadUserDetails();
+                    }
+                    break;
+            }
+        }
+
+        // 登录/注册
+        async function login() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim();
+            const inviterCode = document.getElementById('inviterCodeInput').value.trim();
+
+            if (!username) {
+                showNotification('请输入用户名', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        inviter_code: inviterCode
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    currentUserId = result.user_id;
+                    localStorage.setItem('userId', currentUserId);
+                    showNotification('登录成功！', 'success');
+                    
+                    // 更新界面
+                    document.getElementById('userName').textContent = username;
+                    loadUserData();
+                    connectWebSocket();
+                } else {
+                    showNotification(result.detail || '登录失败', 'error');
+                }
+            } catch (error) {
+                showNotification('网络错误，请重试', 'error');
+            }
+        }
+
+        // 连接WebSocket
+        function connectWebSocket() {
+            if (!currentUserId) return;
+
+            ws = new WebSocket(`ws://localhost:8892/ws?user_id=${currentUserId}`);
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+
+            ws.onclose = function() {
+                // 自动重连
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        // 处理WebSocket消息
+        function handleWebSocketMessage(data) {
+            switch(data.type) {
+                case 'ai_log':
+                    addAILog(data);
+                    break;
+                case 'project_ready_for_review':
+                    handleProjectReadyForReview(data);
+                    break;
+                case 'project_completed':
+                    handleProjectCompleted(data);
+                    break;
+            }
+        }
+
+        // 启动AI开发
+        async function startAIDevelopment() {
+            const requirement = document.getElementById('requirementInput').value.trim();
+            const testMode = document.getElementById('developMode').value === 'true';
+
+            if (!requirement) {
+                showNotification('请输入项目需求描述', 'error');
+                return;
+            }
+
+            if (!currentUserId) {
+                showNotification('请先登录', 'error');
+                switchTab('account');
+                return;
+            }
+
+            const button = document.getElementById('startButton');
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI协作开发中...';
+
+            // 显示进度区域
+            document.getElementById('progressSection').classList.remove('hidden');
+            document.getElementById('aiLogs').innerHTML = '';
+            updateProgress(0, '开始AI协作开发...');
+
+            try {
+                const response = await fetch('/api/start-integrated-ai-development', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        requirement: requirement,
+                        test_mode: testMode
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showNotification(result.message, 'success');
+                    updateProgress(10, 'AI开发流程已启动...');
+                } else {
+                    throw new Error(result.detail || 'AI开发启动失败');
+                }
+            } catch (error) {
+                showNotification(error.message, 'error');
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-rocket"></i> 启动AI协作开发';
+            }
+        }
+
+        // 更新进度
+        function updateProgress(percentage, text) {
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+
+        // 添加AI日志
+        function addAILog(data) {
+            const logsContainer = document.getElementById('aiLogs');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <div class="log-timestamp">${new Date(data.timestamp).toLocaleTimeString()}</div>
+                <strong>[${data.ai_name}]</strong> ${data.action}: ${data.message}
+                ${data.tokens_used ? `<small style="float: right;">Token: ${data.tokens_used}</small>` : ''}
+            `;
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+
+            // 更新进度
+            const progressMap = {
+                '需求分析': 20,
+                '代码生成': 50,
+                '质量检查': 70,
+                '测试验证': 85,
+                '项目完成': 100,
+                '代码生成完成': 90
+            };
+            
+            const progress = progressMap[data.action] || 0;
+            if (progress > 0) {
+                updateProgress(progress, data.message);
+            }
+        }
+
+        // 处理项目准备审查
+        function handleProjectReadyForReview(data) {
+            currentProject = data.project;
+            updateProgress(100, '项目生成完成，请确认文档和前端');
+            
+            // 重置开发按钮
+            const button = document.getElementById('startButton');
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-rocket"></i> 启动AI协作开发';
+            
+            showNotification('项目生成完成！请确认文档和前端界面', 'success');
+            
+            // 显示确认按钮
+            addProjectActions(data);
+        }
+
+        // 添加项目操作按钮
+        function addProjectActions(data) {
+            const logsContainer = document.getElementById('aiLogs');
+            const actionsDiv = document.createElement('div');
+            actionsDiv.innerHTML = `
+                <div style="margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                    <h4>项目操作</h4>
+                    <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="reviewDocument('${data.project.id}')">
+                            <i class="fas fa-file-alt"></i> 查看文档
+                        </button>
+                        <button class="btn btn-secondary" onclick="previewFrontend('${data.project.id}')">
+                            <i class="fas fa-eye"></i> 预览前端
+                        </button>
+                        <button class="btn btn-primary" onclick="deployProject('${data.project.id}')">
+                            <i class="fas fa-cloud-upload-alt"></i> 部署项目
+                        </button>
+                    </div>
+                </div>
+            `;
+            logsContainer.appendChild(actionsDiv);
+        }
+
+        // 查看文档
+        function reviewDocument(projectId) {
+            if (!currentProject) return;
+            
+            document.getElementById('documentContent').value = currentProject.document_content || '加载文档内容...';
+            document.getElementById('documentModal').style.display = 'flex';
+        }
+
+        // 预览前端
+        function previewFrontend(projectId) {
+            if (!currentProject) return;
+            
+            const previewUrl = currentProject.frontend_preview_url;
+            document.getElementById('frontendPreview').src = previewUrl;
+            document.getElementById('frontendModal').style.display = 'flex';
+        }
+
+        // 确认文档
+        async function confirmDocument() {
+            if (!currentProject) return;
+
+            try {
+                const response = await fetch('/api/review-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: currentProject.id,
+                        user_id: currentUserId,
+                        document_content: document.getElementById('documentContent').value,
+                        modification_type: 'confirm'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showNotification('文档已确认', 'success');
+                    closeModal('documentModal');
+                    currentProject.document_confirmed = true;
+                } else {
+                    showNotification(result.message || '操作失败', 'error');
+                }
+            } catch (error) {
+                showNotification('网络错误', 'error');
+            }
+        }
+
+        // 修改文档
+        async function modifyDocument() {
+            const feedback = prompt('请输入您希望修改的内容：');
+            if (!feedback) return;
+
+            try {
+                const response = await fetch('/api/review-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: currentProject.id,
+                        user_id: currentUserId,
+                        document_content: document.getElementById('documentContent').value,
+                        modification_type: 'modify',
+                        feedback: feedback
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('documentContent').value = result.document;
+                    showNotification('文档已根据您的反馈进行修改', 'success');
+                } else {
+                    showNotification(result.message || '修改失败', 'error');
+                }
+            } catch (error) {
+                showNotification('网络错误', 'error');
+            }
+        }
+
+        // 确认前端
+        async function confirmFrontend() {
+            if (!currentProject) return;
+
+            try {
+                const response = await fetch('/api/review-frontend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: currentProject.id,
+                        user_id: currentUserId,
+                        preview_url: currentProject.frontend_preview_url,
+                        modification_type: 'confirm'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showNotification('前端界面已确认', 'success');
+                    closeModal('frontendModal');
+                    currentProject.frontend_confirmed = true;
+                } else {
+                    showNotification(result.message || '操作失败', 'error');
+                }
+            } catch (error) {
+                showNotification('网络错误', 'error');
+            }
+        }
+
+        // 修改前端
+        async function modifyFrontend() {
+            const feedback = prompt('请输入您希望修改的前端内容（如颜色、布局等）：');
+            if (!feedback) return;
+
+            try {
+                const response = await fetch('/api/review-frontend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: currentProject.id,
+                        user_id: currentUserId,
+                        preview_url: currentProject.frontend_preview_url,
+                        modification_type: 'modify',
+                        feedback: feedback
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // 刷新预览
+                    document.getElementById('frontendPreview').src = result.preview_url + '?' + Date.now();
+                    showNotification('前端界面已根据您的反馈进行修改', 'success');
+                    currentProject.frontend_preview_url = result.preview_url;
+                } else {
+                    showNotification(result.message || '修改失败', 'error');
+                }
+            } catch (error) {
+                showNotification('网络错误', 'error');
+            }
+        }
+
+        // 部署项目
+        async function deployProject(projectId) {
+            const deploymentType = 'docker'; // 默认使用Docker部署
+
+            try {
+                const response = await fetch('/api/deploy-project', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: projectId,
+                        user_id: currentUserId,
+                        deployment_type: deploymentType
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showNotification('项目部署成功！', 'success');
+                    // 显示部署链接
+                    const deploymentInfo = document.createElement('div');
+                    deploymentInfo.innerHTML = `
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(34, 197, 94, 0.2); border-radius: 10px;">
+                            <h4>🎉 部署成功！</h4>
+                            <p>访问链接: <a href="${result.deployment_url}" target="_blank" style="color: #4ade80;">${result.deployment_url}</a></p>
+                            <p>${result.access_instructions}</p>
+                        </div>
+                    `;
+                    document.getElementById('aiLogs').appendChild(deploymentInfo);
+                } else {
+                    showNotification(result.message || '部署失败', 'error');
+                }
+            } catch (error) {
+                showNotification('网络错误', 'error');
+            }
+        }
+
+        // 选择支付套餐
+        function selectPaymentPlan(plan) {
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.closest('.payment-option').classList.add('selected');
+            
+            selectedPaymentPlan = plan;
+            document.getElementById('paymentMethods').classList.remove('hidden');
+        }
+
+        // 处理支付
+        async function processPayment(method) {
+            if (!selectedPaymentPlan) {
+                showNotification('请先选择套餐', 'error');
+                return;
+            }
+
+            const plans = {
+                basic: { amount: 19, quota: 100 },
+                pro: { amount: 49, quota: 300 },
+                enterprise: { amount: 99, quota: 800 }
+            };
+
+            const plan = plans[selectedPaymentPlan];
+
+            try {
+                const response = await fetch('/api/recharge', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        amount: plan.amount,
+                        api_quota: plan.quota,
+                        payment_method: method
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showNotification(`充值成功！获得${plan.quota}个API配额`, 'success');
+                    loadUserData(); // 刷新用户数据
+                    loadRechargeRecords(); // 刷新充值记录
+                } else {
+                    showNotification(result.message || '充值失败', 'error');
+                }
+            } catch (error) {
+                showNotification('网络错误', 'error');
+            }
+        }
+
+        // 分享功能
+        async function shareToWeChat() {
+            await createShareRecord('platform', 'wechat');
+            showNotification('分享成功！获得5个API配额奖励', 'success');
+        }
+
+        async function shareToWeibo() {
+            await createShareRecord('platform', 'weibo');
+            showNotification('分享成功！获得5个API配额奖励', 'success');
+        }
+
+        async function shareToQQ() {
+            await createShareRecord('platform', 'qq');
+            showNotification('分享成功！获得5个API配额奖励', 'success');
+        }
+
+        async function createShareRecord(shareType, platform) {
+            try {
+                const response = await fetch('/api/share', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        share_type: shareType,
+                        share_platform: platform,
+                        share_content: '分享AI协作开发平台'
+                    })
+                });
+
+                if (response.ok) {
+                    loadUserData(); // 刷新用户数据
+                    loadShareData(); // 刷新分享数据
+                }
+            } catch (error) {
+                console.error('分享记录创建失败:', error);
+            }
+        }
+
+        // 复制邀请码
+        function copyInvitationCode() {
+            const invitationCode = document.getElementById('invitationCode').textContent;
+            navigator.clipboard.writeText(invitationCode).then(() => {
+                showNotification('邀请码已复制到剪贴板', 'success');
+            });
+        }
+
+        // 加载用户数据
+        async function loadUserData() {
+            if (!currentUserId) return;
+
+            try {
+                const response = await fetch(`/api/user-stats/${currentUserId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('userName').textContent = data.user.username;
+                    document.getElementById('userTier').textContent = data.user.subscription_tier + '版用户';
+                    document.getElementById('apiBalance').textContent = data.user.api_balance;
+                    document.getElementById('projectCount').textContent = data.projects.total;
+                    document.getElementById('invitationCount').textContent = data.user.total_rewards;
+                }
+            } catch (error) {
+                console.error('加载用户数据失败:', error);
+            }
+        }
+
+        // 加载项目列表
+        async function loadProjects() {
+            if (!currentUserId) return;
+
+            try {
+                const response = await fetch(`/api/user-projects/${currentUserId}`);
+                const projects = await response.json();
+                
+                const projectsList = document.getElementById('projectsList');
+                if (projects.length === 0) {
+                    projectsList.innerHTML = '<p>暂无项目，快去创建您的第一个AI项目吧！</p>';
+                    return;
+                }
+
+                projectsList.innerHTML = projects.map(project => `
+                    <div class="project-card">
+                        <div class="project-header">
+                            <div class="project-title">${project.name}</div>
+                            <div class="project-status ${getStatusClass(project.status)}">${project.status}</div>
+                        </div>
+                        <p>${project.description}</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${project.completion_percentage}%"></div>
+                        </div>
+                        <p>完成度: ${project.completion_percentage}% | 文件数: ${project.files_count}</p>
+                        ${project.deployment_url ? `<p>访问链接: <a href="${project.deployment_url}" target="_blank">${project.deployment_url}</a></p>` : ''}
+                        <div class="project-actions">
+                            ${!project.document_confirmed ? `<button class="btn btn-secondary" onclick="reviewDocument('${project.id}')">确认文档</button>` : ''}
+                            ${!project.frontend_confirmed ? `<button class="btn btn-secondary" onclick="previewFrontend('${project.id}')">确认前端</button>` : ''}
+                            ${project.deployment_status === '未部署' && project.document_confirmed && project.frontend_confirmed ? 
+                              `<button class="btn btn-primary" onclick="deployProject('${project.id}')">部署项目</button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载项目失败:', error);
+            }
+        }
+
+        // 获取状态样式类
+        function getStatusClass(status) {
+            const statusMap = {
+                '已完成': 'status-completed',
+                '待确认文档': 'status-pending',
+                '待确认前端': 'status-pending',
+                '进行中': 'status-pending',
+                '错误': 'status-error',
+                '部署中': 'status-deploying'
+            };
+            return statusMap[status] || 'status-pending';
+        }
+
+        // 加载充值记录
+        async function loadRechargeRecords() {
+            if (!currentUserId) return;
+
+            try {
+                const response = await fetch(`/api/recharge-records/${currentUserId}`);
+                const records = await response.json();
+                
+                const recordsDiv = document.getElementById('rechargeRecords');
+                if (records.length === 0) {
+                    recordsDiv.innerHTML = '<p>暂无充值记录</p>';
+                    return;
+                }
+
+                recordsDiv.innerHTML = records.map(record => `
+                    <div class="project-card">
+                        <div class="project-header">
+                            <div>￥${record.amount} - ${record.api_quota}配额</div>
+                            <div class="project-status ${record.payment_status === 'success' ? 'status-completed' : 'status-pending'}">
+                                ${record.payment_status === 'success' ? '成功' : '处理中'}
+                            </div>
+                        </div>
+                        <p>支付方式: ${record.payment_method}</p>
+                        <p>时间: ${new Date(record.created_at).toLocaleString()}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载充值记录失败:', error);
+            }
+        }
+
+        // 加载分享数据
+        async function loadShareData() {
+            if (!currentUserId) return;
+
+            try {
+                // 加载邀请统计
+                const invitationResponse = await fetch(`/api/invitation-stats/${currentUserId}`);
+                const invitationData = await invitationResponse.json();
+                
+                document.getElementById('invitationCode').textContent = invitationData.invitation_code || '加载中...';
+
+                // 加载分享记录
+                const shareResponse = await fetch(`/api/share-records/${currentUserId}`);
+                const shareRecords = await shareResponse.json();
+                
+                const recordsDiv = document.getElementById('shareRecords');
+                if (shareRecords.length === 0) {
+                    recordsDiv.innerHTML = '<p>暂无分享记录</p>';
+                    return;
+                }
+
+                recordsDiv.innerHTML = shareRecords.map(record => `
+                    <div class="project-card">
+                        <div class="project-header">
+                            <div>分享到${record.share_platform}</div>
+                            <div class="project-status status-completed">+${record.reward_quota}配额</div>
+                        </div>
+                        <p>分享内容: ${record.share_content}</p>
+                        <p>时间: ${new Date(record.created_at).toLocaleString()}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载分享数据失败:', error);
+            }
+        }
+
+        // 加载用户详情
+        function loadUserDetails() {
+            // 这里可以加载更详细的用户信息
+            document.getElementById('userDetails').classList.remove('hidden');
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

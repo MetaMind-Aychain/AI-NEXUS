@@ -1,0 +1,89 @@
+{
+  "test_summary": {
+    "total_tests": 12,
+    "passed_tests": 11,
+    "failed_tests": 1,
+    "success_rate": 91.66666666666666
+  },
+  "test_results": [
+    {
+      "test_name": "系统健康检查",
+      "success": true,
+      "details": "版本: 4.0.0",
+      "timestamp": 1754197835.4378037
+    },
+    {
+      "test_name": "用户注册登录",
+      "success": true,
+      "details": "用户ID: dad57519-77b2-4776-81cf-2ca7d2e276b0",
+      "timestamp": 1754197835.4507976
+    },
+    {
+      "test_name": "用户统计信息",
+      "success": true,
+      "details": "API余额: 30",
+      "timestamp": 1754197835.4578025
+    },
+    {
+      "test_name": "Solana钱包创建",
+      "success": true,
+      "details": "地址: 4yzeem2c9rK1YXXm4aCs...",
+      "timestamp": 1754197836.7411985
+    },
+    {
+      "test_name": "钱包查询",
+      "success": true,
+      "details": "找到 1 个钱包",
+      "timestamp": 1754197837.9225314
+    },
+    {
+      "test_name": "用户档案上链",
+      "success": true,
+      "details": "交易哈希: miGq5YRX3r6V7FSjqLcZ...",
+      "timestamp": 1754197837.9549863
+    },
+    {
+      "test_name": "区块链数据查询",
+      "success": true,
+      "details": "找到 1 条数据",
+      "timestamp": 1754197842.959895
+    },
+    {
+      "test_name": "数据验证",
+      "success": true,
+      "details": "数据状态: pending",
+      "timestamp": 1754197842.9856741
+    },
+    {
+      "test_name": "AI开发模拟",
+      "success": false,
+      "details": "未返回开发ID",
+      "timestamp": 1754197843.0756738
+    },
+    {
+      "test_name": "项目列表",
+      "success": true,
+      "details": "找到 0 个项目",
+      "timestamp": 1754197843.0936747
+    },
+    {
+      "test_name": "VIP信息",
+      "success": true,
+      "details": "VIP等级: 0",
+      "timestamp": 1754197843.0976791
+    },
+    {
+      "test_name": "区块链统计",
+      "success": true,
+      "details": "总记录数: 0",
+      "timestamp": 1754197843.1016803
+    }
+  ],
+  "test_users": [
+    {
+      "user_id": "dad57519-77b2-4776-81cf-2ca7d2e276b0",
+      "username": "test_user_1754197835",
+      "email": "test_user_1754197835@test.com"
+    }
+  ]
+}

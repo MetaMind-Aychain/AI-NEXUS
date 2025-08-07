@@ -1,0 +1,45 @@
+{
+  "project_id": "user_deefee3a-1697-4aaa-b59b-9210607b5074_integrated_1754154386_b0e1fb80",
+  "user_id": "deefee3a-1697-4aaa-b59b-9210607b5074",
+  "generated_by": "多用户AI协作系统",
+  "ai_components": [
+    "文档AI",
+    "开发AI(GPT-ENGINEER)",
+    "监督AI",
+    "测试AI"
+  ],
+  "gpt_engineer_integration": true,
+  "optimization_enabled": true,
+  "generation_time": "2025-08-03T01:06:30.437248",
+  "document_analysis": {
+    "project_name": "简单社交平台",
+    "project_type": "web_application",
+    "features": [
+      "用户注册和登录",
+      "个人资料管理",
+      "发布动态",
+      "关注和取关",
+      "点赞和评论",
+      "私信功能",
+      "搜索用户",
+      "热门动态推荐"
+    ],
+    "tech_stack": [
+      "Python",
+      "FastAPI",
+      "SQLite",
+      "React",
+      "CSS"
+    ],
+    "architecture": "前后端分离",
+    "database": "SQLite",
+    "deployment": "Docker容器化部署"
+  },
+  "files_count": 7,
+  "cache_stats": {
+    "total_items": 0,
+    "total_usage": 0,
+    "average_quality": 0,
+    "cache_hit_rate": 0.0
+  }
+}

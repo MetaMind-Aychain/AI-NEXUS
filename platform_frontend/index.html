@@ -1,0 +1,344 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI协作开发平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .requirement-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .requirement-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 15px;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .start-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-section {
+            display: none;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .ai-log {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 0 10px 10px 0;
+            transition: all 0.3s;
+        }
+
+        .ai-log:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .ai-name {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .ai-action {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 3px;
+        }
+
+        .ai-message {
+            color: #2c3e50;
+        }
+
+        .timestamp {
+            font-size: 0.8rem;
+            color: #adb5bd;
+            float: right;
+        }
+
+        .examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .example-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-card:hover {
+            border-color: #667eea;
+            background: #e7f0ff;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .example-desc {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI协作开发平台</h1>
+            <p>输入您的项目需求，AI团队将自动协作为您开发完整的项目</p>
+        </div>
+
+        <div class="main-panel">
+            <div class="input-section">
+                <h2>项目需求描述</h2>
+                
+                <div class="examples">
+                    <div class="example-card" onclick="setExample('电商平台')">
+                        <div class="example-title">电商平台</div>
+                        <div class="example-desc">包含商品管理、用户系统、订单处理等</div>
+                    </div>
+                    <div class="example-card" onclick="setExample('博客系统')">
+                        <div class="example-title">博客系统</div>
+                        <div class="example-desc">文章发布、评论、分类标签功能</div>
+                    </div>
+                    <div class="example-card" onclick="setExample('管理系统')">
+                        <div class="example-title">管理系统</div>
+                        <div class="example-desc">数据管理、权限控制、报表统计</div>
+                    </div>
+                </div>
+
+                <textarea 
+                    id="requirementInput" 
+                    class="requirement-input" 
+                    placeholder="例如：我需要一个电商平台，包含用户注册登录、商品展示、购物车、订单管理、支付功能等，要求界面美观、响应式设计，后端使用Python，前端使用现代JavaScript..."
+                ></textarea>
+                
+                <button id="startButton" class="start-button" onclick="startDevelopment()">
+                    开始AI协作开发
+                </button>
+            </div>
+
+            <div id="progressSection" class="progress-section">
+                <h2>AI协作开发进度</h2>
+                <div id="aiLogs"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let isConnected = false;
+
+        // 连接WebSocket
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = function() {
+                console.log('WebSocket连接已建立');
+                isConnected = true;
+            };
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+            
+            ws.onclose = function() {
+                console.log('WebSocket连接已断开');
+                isConnected = false;
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        // 处理WebSocket消息
+        function handleWebSocketMessage(data) {
+            if (data.type === 'ai_log') {
+                addAILog(data);
+            } else if (data.type === 'project_completed') {
+                handleProjectCompleted(data);
+            }
+        }
+
+        // 添加AI日志
+        function addAILog(logData) {
+            const logsContainer = document.getElementById('aiLogs');
+            const logElement = document.createElement('div');
+            logElement.className = 'ai-log';
+            
+            const timestamp = new Date(logData.timestamp).toLocaleTimeString();
+            
+            logElement.innerHTML = `
+                <div class="timestamp">${timestamp}</div>
+                <div class="ai-name">${logData.ai_name}</div>
+                <div class="ai-action">${logData.action}</div>
+                <div class="ai-message">${logData.message}</div>
+            `;
+            
+            logsContainer.appendChild(logElement);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        // 处理项目完成
+        function handleProjectCompleted(data) {
+            document.getElementById('startButton').disabled = false;
+            document.getElementById('startButton').textContent = '开始AI协作开发';
+            
+            alert(`项目开发完成！\n项目名称：${data.project.name}\n文件数量：${data.files_count}\n保存路径：${data.project_path}`);
+        }
+
+        // 设置示例
+        function setExample(type) {
+            const input = document.getElementById('requirementInput');
+            
+            if (type === '电商平台') {
+                input.value = '我需要一个完整的电商平台，包含以下功能：\n\n1. 用户系统：用户注册、登录、个人信息管理\n2. 商品管理：商品展示、分类、搜索、详情页\n3. 购物功能：购物车、下单、支付流程\n4. 订单管理：订单查看、状态跟踪\n5. 管理后台：商品管理、订单管理、用户管理\n\n技术要求：\n- 后端使用Python FastAPI\n- 前端使用现代HTML/CSS/JavaScript\n- 响应式设计，支持移动端\n- 界面美观，用户体验良好';
+            }
+        }
+
+        // 开始开发
+        async function startDevelopment() {
+            const requirement = document.getElementById('requirementInput').value.trim();
+            
+            if (!requirement) {
+                alert('请输入项目需求描述');
+                return;
+            }
+            
+            const button = document.getElementById('startButton');
+            button.disabled = true;
+            button.textContent = 'AI协作开发中...';
+            
+            document.getElementById('progressSection').classList.add('active');
+            document.getElementById('aiLogs').innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/start-development', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        requirement: requirement
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('开发请求失败');
+                }
+                
+            } catch (error) {
+                console.error('启动开发失败:', error);
+                alert('启动AI协作开发失败，请重试');
+                
+                button.disabled = false;
+                button.textContent = '开始AI协作开发';
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            connectWebSocket();
+        });
+    </script>
+</body>
+</html>
+        

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI电商平台 - 电商平台</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <h1 class="nav-logo">AI电商平台</h1>
+                <div class="nav-menu">
+                    <a href="#" class="nav-link">首页</a>
+                    <a href="#" class="nav-link">商品</a>
+                    <a href="#" class="nav-link">购物车</a>
+                    <a href="#" class="nav-link">我的订单</a>
+                    <div class="auth-buttons">
+                        <button id="loginBtn" class="btn btn-outline">登录</button>
+                        <button id="registerBtn" class="btn btn-primary">注册</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- 首页横幅 -->
+        <section class="hero">
+            <div class="hero-content">
+                <h2>欢迎来到AI电商平台</h2>
+                <p>发现最优质的商品，享受最便捷的购物体验</p>
+                <button class="btn btn-large">开始购物</button>
+            </div>
+        </section>
+
+        <!-- 商品展示 -->
+        <section class="products">
+            <div class="container">
+                <h3>热门商品</h3>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="搜索商品...">
+                    <button id="searchBtn" class="btn">搜索</button>
+                </div>
+                <div class="product-filters">
+                    <select id="categoryFilter">
+                        <option value="">所有分类</option>
+                    </select>
+                </div>
+                <div id="productGrid" class="product-grid">
+                    <!-- 商品将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>用户登录</h3>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">用户名:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">登录</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>用户注册</h3>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="regUsername">用户名:</label>
+                    <input type="text" id="regUsername" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">邮箱:</label>
+                    <input type="email" id="regEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">密码:</label>
+                    <input type="password" id="regPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="fullName">姓名:</label>
+                    <input type="text" id="fullName" name="full_name">
+                </div>
+                <div class="form-group">
+                    <label for="phone">电话:</label>
+                    <input type="tel" id="phone" name="phone">
+                </div>
+                <button type="submit" class="btn btn-primary">注册</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 AI电商平台. AI自动生成的电商平台.</p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI前端设计工作室 - AI-NEXUS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-glow: #00f5ff;
+            --secondary-glow: #ff006e;
+            --accent-glow: #7c3aed;
+            --success-glow: #00ff88;
+            --warning-glow: #ffaa00;
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(15, 15, 25, 0.9);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --border-glow: rgba(0, 245, 255, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-accent: #00f5ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255, 0, 110, 0.1) 0%, transparent 50%);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 顶部工具栏 */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glow);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .toolbar h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-glow), var(--accent-glow));
+            color: var(--bg-dark);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-glow), var(--primary-glow));
+            color: var(--bg-dark);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-glow);
+            color: var(--text-primary);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 主工作区布局 */
+        .workspace {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        /* 左侧工具面板 */
+        .tools-panel {
+            width: 300px;
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            border-right: 1px solid var(--border-glow);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .tool-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-glow);
+        }
+
+        .tool-section h3 {
+            font-family: 'Orbitron', monospace;
+            color: var(--text-accent);
+            margin-bottom: 15px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 元素工具箱 */
+        .element-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .element-tool {
+            padding: 15px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .element-tool:hover {
+            background: rgba(0, 245, 255, 0.1);
+            border-color: var(--primary-glow);
+            transform: translateY(-2px);
+        }
+
+        .element-tool.active {
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.2), rgba(124, 58, 237, 0.2));
+            border-color: var(--primary-glow);
+        }
+
+        .element-tool i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: var(--primary-glow);
+        }
+
+        /* 属性面板 */
+        .property-group {
+            margin-bottom: 20px;
+        }
+
+        .property-group h4 {
+            color: var(--text-accent);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .property-input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .property-input:focus {
+            outline: none;
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .color-option:hover,
+        .color-option.active {
+            border-color: var(--primary-glow);
+            transform: scale(1.1);
+        }
+
+        .range-input {
+            width: 100%;
+            margin: 8px 0;
+        }
+
+        /* 中央预览区域 */
+        .preview-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--border-glow);
+        }
+
+        .preview-modes {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mode-btn {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-glow);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .mode-btn.active {
+            background: var(--primary-glow);
+            color: var(--bg-dark);
+            border-color: var(--primary-glow);
+        }
+
+        .preview-iframe-container {
+            flex: 1;
+            position: relative;
+            background: #ffffff;
+            margin: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .preview-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .element-highlight {
+            position: absolute;
+            border: 2px dashed var(--primary-glow);
+            background: rgba(0, 245, 255, 0.1);
+            pointer-events: none;
+            border-radius: 4px;
+            animation: elementPulse 2s infinite;
+        }
+
+        @keyframes elementPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* 右侧代码/聊天面板 */
+        .side-panel {
+            width: 350px;
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            border-left: 1px solid var(--border-glow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--border-glow);
+        }
+
+        .panel-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .panel-tab.active {
+            background: var(--primary-glow);
+            color: var(--bg-dark);
+        }
+
+        .panel-content {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+        }
+
+        .panel-content.active {
+            display: flex;
+        }
+
+        /* 聊天界面 */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 10px;
+            animation: messageSlide 0.4s ease-out;
+        }
+
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .avatar-user {
+            background: linear-gradient(135deg, var(--primary-glow), var(--accent-glow));
+            color: var(--bg-dark);
+        }
+
+        .avatar-ai {
+            background: linear-gradient(135deg, var(--success-glow), var(--primary-glow));
+            color: var(--bg-dark);
+        }
+
+        .message-content {
+            max-width: 80%;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .chat-message.user .message-content {
+            background: rgba(0, 245, 255, 0.1);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+        }
+
+        .chat-input-area {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-glow);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            resize: none;
+            height: 36px;
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-glow), var(--accent-glow));
+            border: none;
+            color: var(--bg-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* 代码编辑器 */
+        .code-editor {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--border-glow);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .code-content {
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* 快速建议 */
+        .quick-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .suggestion-chip {
+            padding: 4px 8px;
+            background: rgba(0, 245, 255, 0.1);
+            border: 1px solid var(--primary-glow);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--primary-glow);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-chip:hover {
+            background: var(--primary-glow);
+            color: var(--bg-dark);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .tools-panel {
+                width: 250px;
+            }
+            .side-panel {
+                width: 300px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .workspace {
+                flex-direction: column;
+            }
+            .tools-panel,
+            .side-panel {
+                width: 100%;
+                height: 200px;
+            }
+            .preview-container {
+                height: 400px;
+            }
+        }
+
+        /* 状态指示器 */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(255, 170, 0, 0.2);
+            border: 1px solid var(--warning-glow);
+            color: var(--warning-glow);
+        }
+
+        .status-confirmed {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid var(--success-glow);
+            color: var(--success-glow);
+        }
+
+        /* 动画效果 */
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(0, 245, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-glow);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-glow);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部工具栏 -->
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <h1><i class="fas fa-paint-brush"></i> AI前端设计工作室</h1>
+            <div id="confirmationStatus" class="status-indicator status-pending">
+                <i class="fas fa-clock"></i>
+                <span>待确认界面</span>
+            </div>
+        </div>
+        
+        <div class="toolbar-actions">
+            <button class="btn btn-secondary" onclick="resetToDefault()">
+                <i class="fas fa-undo"></i> 重置
+            </button>
+            <button class="btn btn-primary" onclick="previewChanges()">
+                <i class="fas fa-eye"></i> 预览
+            </button>
+            <button id="confirmBtn" class="btn btn-success" onclick="confirmFrontend()">
+                <i class="fas fa-check"></i> 确认界面
+            </button>
+            <button class="btn btn-secondary" onclick="window.close()">
+                <i class="fas fa-times"></i> 关闭
+            </button>
+        </div>
+    </div>
+
+    <!-- 主工作区 -->
+    <div class="workspace">
+        <!-- 左侧工具面板 -->
+        <div class="tools-panel">
+            <!-- 元素工具箱 -->
+            <div class="tool-section">
+                <h3><i class="fas fa-cube"></i> 元素工具箱</h3>
+                <div class="element-grid">
+                    <div class="element-tool" onclick="selectTool('button')">
+                        <i class="fas fa-square"></i>
+                        <div>按钮</div>
+                    </div>
+                    <div class="element-tool" onclick="selectTool('text')">
+                        <i class="fas fa-font"></i>
+                        <div>文本</div>
+                    </div>
+                    <div class="element-tool" onclick="selectTool('input')">
+                        <i class="fas fa-edit"></i>
+                        <div>输入框</div>
+                    </div>
+                    <div class="element-tool" onclick="selectTool('image')">
+                        <i class="fas fa-image"></i>
+                        <div>图片</div>
+                    </div>
+                    <div class="element-tool" onclick="selectTool('container')">
+                        <i class="fas fa-th-large"></i>
+                        <div>容器</div>
+                    </div>
+                    <div class="element-tool" onclick="selectTool('list')">
+                        <i class="fas fa-list"></i>
+                        <div>列表</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 样式属性 -->
+            <div class="tool-section">
+                <h3><i class="fas fa-palette"></i> 样式属性</h3>
+                
+                <div class="property-group">
+                    <h4>配色方案</h4>
+                    <div class="color-picker">
+                        <div class="color-option" style="background: #667eea;" onclick="applyColor('primary', '#667eea')"></div>
+                        <div class="color-option" style="background: #764ba2;" onclick="applyColor('primary', '#764ba2')"></div>
+                        <div class="color-option" style="background: #00f5ff;" onclick="applyColor('primary', '#00f5ff')"></div>
+                        <div class="color-option" style="background: #ff006e;" onclick="applyColor('primary', '#ff006e')"></div>
+                        <div class="color-option" style="background: #7c3aed;" onclick="applyColor('primary', '#7c3aed')"></div>
+                        <div class="color-option" style="background: #00ff88;" onclick="applyColor('primary', '#00ff88')"></div>
+                    </div>
+                </div>
+
+                <div class="property-group">
+                    <h4>字体大小</h4>
+                    <input type="range" class="range-input" id="fontSizeRange" min="12" max="24" value="16" oninput="updateFontSize(this.value)">
+                    <input type="number" class="property-input" id="fontSizeInput" value="16" min="12" max="24" onchange="updateFontSize(this.value)">
+                </div>
+
+                <div class="property-group">
+                    <h4>间距设置</h4>
+                    <input type="range" class="range-input" id="paddingRange" min="5" max="50" value="20" oninput="updatePadding(this.value)">
+                    <input type="number" class="property-input" id="paddingInput" value="20" min="5" max="50" onchange="updatePadding(this.value)">
+                </div>
+
+                <div class="property-group">
+                    <h4>边框圆角</h4>
+                    <input type="range" class="range-input" id="borderRadiusRange" min="0" max="25" value="10" oninput="updateBorderRadius(this.value)">
+                    <input type="number" class="property-input" id="borderRadiusInput" value="10" min="0" max="25" onchange="updateBorderRadius(this.value)">
+                </div>
+
+                <div class="property-group">
+                    <h4>阴影强度</h4>
+                    <input type="range" class="range-input" id="shadowRange" min="0" max="20" value="5" oninput="updateShadow(this.value)">
+                </div>
+
+                <div class="property-group">
+                    <h4>透明度</h4>
+                    <input type="range" class="range-input" id="opacityRange" min="10" max="100" value="100" oninput="updateOpacity(this.value)">
+                </div>
+            </div>
+
+            <!-- 布局设置 -->
+            <div class="tool-section">
+                <h3><i class="fas fa-th"></i> 布局设置</h3>
+                
+                <div class="property-group">
+                    <h4>布局模式</h4>
+                    <select class="property-input" id="layoutSelect" onchange="changeLayout(this.value)">
+                        <option value="flex">弹性布局</option>
+                        <option value="grid">网格布局</option>
+                        <option value="block">块级布局</option>
+                    </select>
+                </div>
+
+                <div class="property-group">
+                    <h4>响应式</h4>
+                    <select class="property-input" id="responsiveSelect" onchange="toggleResponsive(this.value)">
+                        <option value="desktop">桌面端</option>
+                        <option value="tablet">平板端</option>
+                        <option value="mobile">移动端</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中央预览区域 -->
+        <div class="preview-container">
+            <div class="preview-header">
+                <div class="preview-modes">
+                    <div class="mode-btn active" onclick="switchPreviewMode('desktop')">
+                        <i class="fas fa-desktop"></i> 桌面
+                    </div>
+                    <div class="mode-btn" onclick="switchPreviewMode('tablet')">
+                        <i class="fas fa-tablet-alt"></i> 平板
+                    </div>
+                    <div class="mode-btn" onclick="switchPreviewMode('mobile')">
+                        <i class="fas fa-mobile-alt"></i> 手机
+                    </div>
+                </div>
+                
+                <div>
+                    <button class="btn btn-secondary" onclick="toggleInteractiveMode()">
+                        <i class="fas fa-hand-pointer"></i> 交互模式
+                    </button>
+                </div>
+            </div>
+
+            <div class="preview-iframe-container">
+                <iframe id="previewFrame" class="preview-iframe" src=""></iframe>
+                <div id="previewOverlay" class="preview-overlay"></div>
+            </div>
+        </div>
+
+        <!-- 右侧面板 -->
+        <div class="side-panel">
+            <div class="panel-tabs">
+                <div class="panel-tab active" onclick="switchPanel('chat')">
+                    <i class="fas fa-comments"></i> AI对话
+                </div>
+                <div class="panel-tab" onclick="switchPanel('code')">
+                    <i class="fas fa-code"></i> 代码预览
+                </div>
+            </div>
+
+            <!-- AI对话面板 -->
+            <div id="chatPanel" class="panel-content active">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-message ai">
+                        <div class="message-avatar avatar-ai">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            🎨 欢迎来到AI前端设计工作室！我会帮您优化界面设计。您可以：<br>
+                            • 点击元素直接编辑<br>
+                            • 使用左侧工具调整样式<br>
+                            • 通过对话描述需求<br>
+                            有什么需要调整的吗？
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <div class="quick-suggestions">
+                        <div class="suggestion-chip" onclick="sendSuggestion('改为深色主题')">深色主题</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('增大按钮尺寸')">增大按钮</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('调整为移动端适配')">移动适配</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('添加动画效果')">添加动画</div>
+                    </div>
+                    
+                    <div class="chat-input-wrapper">
+                        <textarea id="chatInput" class="chat-input" placeholder="描述您的设计需求..."></textarea>
+                        <button class="send-btn" onclick="sendChatMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 代码预览面板 -->
+            <div id="codePanel" class="panel-content">
+                <div class="code-editor">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span>HTML结构</span>
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="copyCode('html')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="code-content" id="htmlCode">
+                            <!-- HTML代码将在这里显示 -->
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span>CSS样式</span>
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="copyCode('css')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="code-content" id="cssCode">
+                            /* CSS样式将在这里显示 */
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span>JavaScript交互</span>
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="copyCode('js')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="code-content" id="jsCode">
+                            // JavaScript代码将在这里显示
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let projectId = null;
+        let currentPreviewUrl = null;
+        let isConfirmed = false;
+        let selectedTool = null;
+        let interactiveMode = false;
+        let currentStyles = {
+            primaryColor: '#667eea',
+            fontSize: 16,
+            padding: 20,
+            borderRadius: 10,
+            shadow: 5,
+            opacity: 100
+        };
+
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            projectId = urlParams.get('project_id');
+            
+            if (!projectId) {
+                showNotification('缺少项目ID参数', 'error');
+                return;
+            }
+            
+            loadProjectFrontend();
+            setupChatInput();
+        });
+
+        // 加载项目前端
+        async function loadProjectFrontend() {
+            try {
+                const response = await fetch(`/api/projects/${projectId}/frontend`);
+                if (response.ok) {
+                    const data = await response.json();
+                    currentPreviewUrl = data.preview_url;
+                    isConfirmed = data.confirmed;
+                    
+                    loadPreview();
+                    updateConfirmationStatus();
+                    loadCodePreview();
+                } else {
+                    showNotification('加载前端界面失败', 'error');
+                }
+            } catch (error) {
+                console.error('加载前端失败:', error);
+                showNotification('网络错误，请重试', 'error');
+            }
+        }
+
+        // 加载预览
+        function loadPreview() {
+            if (!currentPreviewUrl) {
+                const previewFrame = document.getElementById('previewFrame');
+                previewFrame.srcdoc = `
+                    <html>
+                    <head>
+                        <title>预览加载中</title>
+                        <style>
+                            body { 
+                                font-family: Arial, sans-serif; 
+                                display: flex; 
+                                justify-content: center; 
+                                align-items: center; 
+                                height: 100vh; 
+                                margin: 0; 
+                                background: #f5f5f5; 
+                            }
+                            .loading { text-align: center; color: #666; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="loading">
+                            <h2>🎨 AI界面生成中...</h2>
+                            <p>请稍候，AI正在为您创造精美的用户界面</p>
+                        </div>
+                    </body>
+                    </html>
+                `;
+                return;
+            }
+
+            const previewFrame = document.getElementById('previewFrame');
+            previewFrame.src = currentPreviewUrl;
+            
+            // 监听iframe加载完成
+            previewFrame.onload = function() {
+                setupInteractiveMode();
+                generateMockCode();
+            };
+        }
+
+        // 设置交互模式
+        function setupInteractiveMode() {
+            if (!interactiveMode) return;
+            
+            const previewFrame = document.getElementById('previewFrame');
+            try {
+                const frameDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                
+                // 为所有可编辑元素添加点击事件
+                const elements = frameDoc.querySelectorAll('button, input, h1, h2, h3, p, div, a');
+                elements.forEach(element => {
+                    element.style.cursor = 'pointer';
+                    element.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        selectElement(element);
+                    });
+                });
+            } catch (error) {
+                console.log('无法访问iframe内容，可能是跨域问题');
+            }
+        }
+
+        // 选择元素
+        function selectElement(element) {
+            // 移除之前的高亮
+            const prevHighlight = document.querySelector('.element-highlight');
+            if (prevHighlight) {
+                prevHighlight.remove();
+            }
+            
+            // 添加新的高亮
+            const rect = element.getBoundingClientRect();
+            const highlight = document.createElement('div');
+            highlight.className = 'element-highlight';
+            highlight.style.cssText = `
+                top: ${rect.top}px;
+                left: ${rect.left}px;
+                width: ${rect.width}px;
+                height: ${rect.height}px;
+            `;
+            
+            document.getElementById('previewOverlay').appendChild(highlight);
+            
+            // 更新属性面板
+            updatePropertyPanel(element);
+            
+            showNotification(`已选择 ${element.tagName.toLowerCase()} 元素`, 'info');
+        }
+
+        // 更新属性面板
+        function updatePropertyPanel(element) {
+            const computedStyle = window.getComputedStyle(element);
+            
+            // 更新字体大小
+            const fontSize = parseInt(computedStyle.fontSize);
+            document.getElementById('fontSizeRange').value = fontSize;
+            document.getElementById('fontSizeInput').value = fontSize;
+            
+            // 更新内边距
+            const padding = parseInt(computedStyle.padding);
+            document.getElementById('paddingRange').value = padding || 20;
+            document.getElementById('paddingInput').value = padding || 20;
+            
+            // 更新边框圆角
+            const borderRadius = parseInt(computedStyle.borderRadius);
+            document.getElementById('borderRadiusRange').value = borderRadius || 10;
+            document.getElementById('borderRadiusInput').value = borderRadius || 10;
+        }
+
+        // 更新确认状态
+        function updateConfirmationStatus() {
+            const statusElement = document.getElementById('confirmationStatus');
+            const confirmBtn = document.getElementById('confirmBtn');
+            
+            if (isConfirmed) {
+                statusElement.className = 'status-indicator status-confirmed';
+                statusElement.innerHTML = '<i class="fas fa-check-circle"></i><span>界面已确认</span>';
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<i class="fas fa-check"></i> 已确认';
+            } else {
+                statusElement.className = 'status-indicator status-pending';
+                statusElement.innerHTML = '<i class="fas fa-clock"></i><span>待确认界面</span>';
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="fas fa-check"></i> 确认界面';
+            }
+        }
+
+        // 选择工具
+        function selectTool(toolType) {
+            document.querySelectorAll('.element-tool').forEach(tool => {
+                tool.classList.remove('active');
+            });
+            event.target.closest('.element-tool').classList.add('active');
+            selectedTool = toolType;
+            
+            showNotification(`已选择${toolType}工具`, 'info');
+        }
+
+        // 应用颜色
+        function applyColor(type, color) {
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            currentStyles.primaryColor = color;
+            applyStyleChanges();
+            showNotification(`主题色已更新为 ${color}`, 'success');
+        }
+
+        // 更新字体大小
+        function updateFontSize(value) {
+            currentStyles.fontSize = value;
+            document.getElementById('fontSizeRange').value = value;
+            document.getElementById('fontSizeInput').value = value;
+            applyStyleChanges();
+        }
+
+        // 更新内边距
+        function updatePadding(value) {
+            currentStyles.padding = value;
+            document.getElementById('paddingRange').value = value;
+            document.getElementById('paddingInput').value = value;
+            applyStyleChanges();
+        }
+
+        // 更新边框圆角
+        function updateBorderRadius(value) {
+            currentStyles.borderRadius = value;
+            document.getElementById('borderRadiusRange').value = value;
+            document.getElementById('borderRadiusInput').value = value;
+            applyStyleChanges();
+        }
+
+        // 更新阴影
+        function updateShadow(value) {
+            currentStyles.shadow = value;
+            applyStyleChanges();
+        }
+
+        // 更新透明度
+        function updateOpacity(value) {
+            currentStyles.opacity = value;
+            applyStyleChanges();
+        }
+
+        // 应用样式变化
+        function applyStyleChanges() {
+            // 实际应用中这里会向后端发送样式更新请求
+            console.log('应用样式变化:', currentStyles);
+            generateMockCode();
+        }
+
+        // 切换预览模式
+        function switchPreviewMode(mode) {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const previewContainer = document.querySelector('.preview-iframe-container');
+            previewContainer.style.margin = '20px';
+            
+            switch(mode) {
+                case 'tablet':
+                    previewContainer.style.maxWidth = '768px';
+                    previewContainer.style.margin = '20px auto';
+                    break;
+                case 'mobile':
+                    previewContainer.style.maxWidth = '375px';
+                    previewContainer.style.margin = '20px auto';
+                    break;
+                default:
+                    previewContainer.style.maxWidth = 'none';
+                    break;
+            }
+            
+            showNotification(`切换到${mode}预览模式`, 'info');
+        }
+
+        // 切换交互模式
+        function toggleInteractiveMode() {
+            interactiveMode = !interactiveMode;
+            const btn = event.target;
+            
+            if (interactiveMode) {
+                btn.innerHTML = '<i class="fas fa-hand-pointer"></i> 退出交互';
+                btn.style.background = 'var(--primary-glow)';
+                btn.style.color = 'var(--bg-dark)';
+                setupInteractiveMode();
+                showNotification('交互模式已开启，点击元素进行编辑', 'success');
+            } else {
+                btn.innerHTML = '<i class="fas fa-hand-pointer"></i> 交互模式';
+                btn.style.background = '';
+                btn.style.color = '';
+                // 移除所有高亮
+                document.querySelectorAll('.element-highlight').forEach(el => el.remove());
+                showNotification('交互模式已关闭', 'info');
+            }
+        }
+
+        // 切换面板
+        function switchPanel(panelType) {
+            document.querySelectorAll('.panel-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.panel-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            document.getElementById(panelType + 'Panel').classList.add('active');
+        }
+
+        // 设置聊天输入
+        function setupChatInput() {
+            const chatInput = document.getElementById('chatInput');
+            
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendChatMessage();
+                }
+            });
+        }
+
+        // 发送聊天消息
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            addChatMessage('user', message);
+            input.value = '';
+
+            // 显示AI思考状态
+            addChatMessage('ai', '正在分析您的需求...', true);
+
+            try {
+                const response = await fetch('/api/review-frontend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: projectId,
+                        user_id: localStorage.getItem('userId'),
+                        preview_url: currentPreviewUrl,
+                        modification_type: 'modify',
+                        feedback: message
+                    })
+                });
+
+                // 移除思考状态
+                const thinkingMessage = document.querySelector('.thinking-message');
+                if (thinkingMessage) {
+                    thinkingMessage.remove();
+                }
+
+                if (response.ok) {
+                    const result = await response.json();
+                    addChatMessage('ai', '好的，我已经根据您的要求对界面进行了调整。请查看预览效果。');
+                    
+                    currentPreviewUrl = result.preview_url;
+                    loadPreview();
+                    isConfirmed = false;
+                    updateConfirmationStatus();
+                } else {
+                    const error = await response.json();
+                    addChatMessage('ai', `抱歉，修改失败：${error.detail || '请重试'}`);
+                }
+            } catch (error) {
+                addChatMessage('ai', '网络连接异常，请检查网络后重试。');
+            }
+        }
+
+        // 发送建议
+        function sendSuggestion(suggestion) {
+            document.getElementById('chatInput').value = suggestion;
+            sendChatMessage();
+        }
+
+        // 添加聊天消息
+        function addChatMessage(sender, text, isThinking = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}`;
+            
+            if (isThinking) {
+                messageDiv.classList.add('thinking-message');
+            }
+            
+            const avatarClass = sender === 'user' ? 'avatar-user' : 'avatar-ai';
+            const avatarIcon = sender === 'user' ? 'fa-user' : 'fa-robot';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar ${avatarClass}">
+                    <i class="fas ${avatarIcon}"></i>
+                </div>
+                <div class="message-content">
+                    ${isThinking ? '<i class="fas fa-spinner fa-spin"></i> ' : ''}${text}
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // 生成模拟代码
+        function generateMockCode() {
+            const htmlCode = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI生成界面</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>欢迎使用AI平台</h1>
+            <nav class="nav">
+                <a href="#" class="nav-link">首页</a>
+                <a href="#" class="nav-link">功能</a>
+                <a href="#" class="nav-link">关于</a>
+            </nav>
+        </header>
+        
+        <main class="main">
+            <section class="hero">
+                <h2>智能AI协作开发</h2>
+                <p>体验未来科技的无限可能</p>
+                <button class="cta-button">立即开始</button>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>`;
+
+            const cssCode = `/* AI生成的CSS样式 */
+:root {
+    --primary-color: ${currentStyles.primaryColor};
+    --font-size: ${currentStyles.fontSize}px;
+    --padding: ${currentStyles.padding}px;
+    --border-radius: ${currentStyles.borderRadius}px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    font-size: var(--font-size);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--padding);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--padding) 0;
+}
+
+.nav {
+    display: flex;
+    gap: calc(var(--padding) * 0.8);
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.hero {
+    text-align: center;
+    padding: calc(var(--padding) * 3) 0;
+}
+
+.hero h2 {
+    font-size: calc(var(--font-size) * 2.5);
+    margin-bottom: var(--padding);
+}
+
+.cta-button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: var(--padding) calc(var(--padding) * 1.5);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: ${currentStyles.opacity / 100};
+    box-shadow: 0 ${currentStyles.shadow}px ${currentStyles.shadow * 2}px rgba(0,0,0,0.3);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 ${currentStyles.shadow * 2}px ${currentStyles.shadow * 4}px rgba(0,0,0,0.4);
+}`;
+
+            const jsCode = `// AI生成的JavaScript交互代码
+document.addEventListener('DOMContentLoaded', function() {
+    // 按钮点击事件
+    const ctaButton = document.querySelector('.cta-button');
+    ctaButton.addEventListener('click', function() {
+        alert('欢迎使用AI协作开发平台！');
+    });
+    
+    // 导航链接悬停效果
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+        
+        link.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+    
+    // 页面滚动效果
+    window.addEventListener('scroll', function() {
+        const header = document.querySelector('.header');
+        if (window.scrollY > 100) {
+            header.style.background = 'rgba(0, 0, 0, 0.9)';
+        } else {
+            header.style.background = 'transparent';
+        }
+    });
+});`;
+
+            document.getElementById('htmlCode').textContent = htmlCode;
+            document.getElementById('cssCode').textContent = cssCode;
+            document.getElementById('jsCode').textContent = jsCode;
+        }
+
+        // 复制代码
+        function copyCode(type) {
+            const codeElement = document.getElementById(type + 'Code');
+            const text = codeElement.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification(`${type.toUpperCase()}代码已复制！`, 'success');
+            }).catch(() => {
+                showNotification('复制失败，请手动复制', 'error');
+            });
+        }
+
+        // 确认前端
+        async function confirmFrontend() {
+            if (isConfirmed) return;
+
+            const confirmBtn = document.getElementById('confirmBtn');
+            const originalText = confirmBtn.innerHTML;
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="loading-spinner"></span> 确认中...';
+
+            try {
+                const response = await fetch('/api/review-frontend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: projectId,
+                        user_id: localStorage.getItem('userId'),
+                        preview_url: currentPreviewUrl,
+                        modification_type: 'confirm'
+                    })
+                });
+
+                if (response.ok) {
+                    isConfirmed = true;
+                    updateConfirmationStatus();
+                    addChatMessage('ai', '🎉 前端界面已确认！AI正在完成最后的验证步骤...');
+                    showNotification('界面确认成功！开发即将完成...', 'success');
+                    
+                    // 通知父窗口完成开发流程
+                    if (window.opener && window.opener.finalizeDevelopment) {
+                        window.opener.finalizeDevelopment();
+                    }
+                    
+                    // 3秒后自动关闭窗口
+                    setTimeout(() => {
+                        if (window.opener) {
+                            window.close();
+                        }
+                    }, 3000);
+                    
+                } else {
+                    const error = await response.json();
+                    showNotification(`确认失败：${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showNotification('网络错误，请重试', 'error');
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalText;
+            }
+        }
+
+        // 重置到默认状态
+        function resetToDefault() {
+            if (confirm('确定要重置所有修改吗？这将丢失当前的自定义设置。')) {
+                currentStyles = {
+                    primaryColor: '#667eea',
+                    fontSize: 16,
+                    padding: 20,
+                    borderRadius: 10,
+                    shadow: 5,
+                    opacity: 100
+                };
+                
+                // 重置所有输入控件
+                document.getElementById('fontSizeRange').value = 16;
+                document.getElementById('fontSizeInput').value = 16;
+                document.getElementById('paddingRange').value = 20;
+                document.getElementById('paddingInput').value = 20;
+                document.getElementById('borderRadiusRange').value = 10;
+                document.getElementById('borderRadiusInput').value = 10;
+                document.getElementById('shadowRange').value = 5;
+                document.getElementById('opacityRange').value = 100;
+                
+                applyStyleChanges();
+                showNotification('已重置为默认设置', 'info');
+            }
+        }
+
+        // 预览变化
+        function previewChanges() {
+            loadPreview();
+            showNotification('预览已刷新', 'info');
+        }
+
+        // 加载代码预览（模拟）
+        function loadCodePreview() {
+            generateMockCode();
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 8px;
+                color: white;
+                z-index: 1000;
+                backdrop-filter: blur(20px);
+                border: 1px solid;
+                animation: slideInRight 0.3s ease-out;
+                max-width: 300px;
+                font-size: 0.85rem;
+            `;
+            
+            if (type === 'success') {
+                notification.style.background = 'rgba(0, 255, 136, 0.2)';
+                notification.style.borderColor = 'var(--success-glow)';
+            } else if (type === 'error') {
+                notification.style.background = 'rgba(255, 107, 107, 0.2)';
+                notification.style.borderColor = '#ff6b6b';
+            } else {
+                notification.style.background = 'rgba(0, 245, 255, 0.2)';
+                notification.style.borderColor = 'var(--primary-glow)';
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            generateMockCode();
+        });
+    </script>
+</body>
+</html>

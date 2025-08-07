@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-NEXUS 交互式文档编辑器</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-chat: #16213e;
+            --primary-glow: #00d4ff;
+            --accent-glow: #ff6b9d;
+            --success-glow: #00ff88;
+            --warning-glow: #ffab00;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-accent: #00d4ff;
+            --border-glow: rgba(0, 212, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左侧文档区域 */
+        .document-panel {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-glow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .document-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-glow);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .document-title {
+            color: var(--primary-glow);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .document-status {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .status-draft {
+            background: var(--warning-glow);
+            color: var(--bg-dark);
+        }
+
+        .status-confirmed {
+            background: var(--success-glow);
+            color: var(--bg-dark);
+        }
+
+        .document-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .document-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border-left: 4px solid var(--primary-glow);
+            transition: all 0.3s ease;
+        }
+
+        .document-section:hover {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.1);
+        }
+
+        .section-title {
+            color: var(--text-accent);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-content {
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .edit-button {
+            background: var(--accent-glow);
+            color: var(--bg-dark);
+            border: none;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .edit-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        /* 右侧聊天区域 */
+        .chat-panel {
+            width: 400px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-glow);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-title {
+            color: var(--primary-glow);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 15px;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, var(--primary-glow), var(--accent-glow));
+            color: var(--bg-dark);
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .message.ai {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-glow);
+            align-self: flex-start;
+        }
+
+        .message-header {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            border-top: 1px solid var(--border-glow);
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-glow);
+            border-radius: 25px;
+            color: var(--text-primary);
+            resize: none;
+            min-height: 60px;
+            max-height: 120px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-glow), var(--accent-glow));
+            color: var(--bg-dark);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glow);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 确认操作区域 */
+        .confirmation-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 20px 30px;
+            border-radius: 25px;
+            border: 1px solid var(--success-glow);
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        .confirmation-panel.show {
+            display: block;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            margin: 10px 0;
+        }
+
+        .typing-indicator.show {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary-glow);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-glow);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-glow);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .chat-panel {
+                width: 100%;
+                height: 40%;
+            }
+            
+            .document-panel {
+                height: 60%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧文档区域 -->
+        <div class="document-panel">
+            <div class="document-header">
+                <h1 class="document-title" id="documentTitle">
+                    <i class="fas fa-file-alt"></i>
+                    项目需求文档
+                </h1>
+                <div class="document-status">
+                    <span class="status-badge status-draft" id="documentStatus">草稿状态</span>
+                    <button class="btn btn-secondary" onclick="regenerateDocument()">
+                        <i class="fas fa-sync"></i> 重新生成
+                    </button>
+                    <button class="btn btn-primary" onclick="confirmDocument()" id="confirmBtn">
+                        <i class="fas fa-check"></i> 确认文档
+                    </button>
+                </div>
+            </div>
+            
+            <div class="document-content" id="documentContent">
+                <div class="document-section">
+                    <div class="section-title">
+                        <i class="fas fa-bullseye"></i>
+                        项目概述
+                        <button class="edit-button" onclick="editSection('overview')">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                    </div>
+                    <div class="section-content" id="overview">
+                        正在加载项目文档...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧聊天区域 -->
+        <div class="chat-panel">
+            <div class="chat-header">
+                <h2 class="chat-title">
+                    <i class="fas fa-robot"></i>
+                    AI助手对话
+                </h2>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai">
+                    <div class="message-header">
+                        <i class="fas fa-robot"></i> 文档AI
+                    </div>
+                    <div>您好！我是您的AI文档助手。我已经根据您的需求生成了初步的项目文档。您可以：</div>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>点击文档中的"编辑"按钮修改特定部分</li>
+                        <li>在此处与我对话，描述您希望的修改</li>
+                        <li>确认文档无误后点击"确认文档"</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <span>AI正在思考...</span>
+            </div>
+            
+            <div class="chat-input-area">
+                <textarea 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="描述您希望的文档修改或提出问题..."
+                    onkeydown="handleKeyDown(event)"></textarea>
+                <div class="chat-controls">
+                    <button class="btn btn-primary" onclick="sendMessage()" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i> 发送
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearChat()">
+                        <i class="fas fa-trash"></i> 清空
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认面板 -->
+    <div class="confirmation-panel" id="confirmationPanel">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <i class="fas fa-check-circle" style="color: var(--success-glow); font-size: 1.5rem;"></i>
+            <span>文档已确认！正在进入前端界面设计阶段...</span>
+            <button class="btn btn-primary" onclick="proceedToFrontend()">
+                <i class="fas fa-arrow-right"></i> 继续
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentProjectId = '';
+        let currentUserId = '';
+        let isDocumentConfirmed = false;
+        let isGenerating = false;
+
+        // 页面加载时初始化
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            currentProjectId = urlParams.get('project_id') || '';
+            currentUserId = localStorage.getItem('currentUserId') || '';
+            
+            if (!currentProjectId || !currentUserId) {
+                showError('缺少项目ID或用户ID，请返回主界面重新开始');
+                return;
+            }
+            
+            loadProjectDocument();
+        };
+
+        // 加载项目文档
+        async function loadProjectDocument() {
+            try {
+                const response = await fetch(`/api/projects/${currentProjectId}/document`);
+                if (response.ok) {
+                    const docData = await response.json();
+                    displayDocument(docData);
+                } else {
+                    throw new Error('文档加载失败');
+                }
+            } catch (error) {
+                console.error('加载文档失败:', error);
+                showError('文档加载失败，请重试');
+            }
+        }
+
+        // 显示文档内容
+        function displayDocument(docData) {
+            const content = docData.content || '';
+            const status = docData.status || 'draft';
+            
+            // 更新文档状态
+            const statusElement = document.getElementById('documentStatus');
+            const confirmBtn = document.getElementById('confirmBtn');
+            
+            if (status === 'confirmed') {
+                statusElement.textContent = '已确认';
+                statusElement.className = 'status-badge status-confirmed';
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<i class="fas fa-check"></i> 已确认';
+                isDocumentConfirmed = true;
+            }
+
+            // 解析并显示文档内容
+            parseAndDisplayContent(content);
+        }
+
+        // 解析并显示文档内容
+        function parseAndDisplayContent(content) {
+            const contentContainer = document.getElementById('documentContent');
+            
+            // 简单的文档解析 - 实际项目中可以更复杂
+            const sections = [
+                { id: 'overview', title: '项目概述', icon: 'fas fa-bullseye' },
+                { id: 'features', title: '功能需求', icon: 'fas fa-list' },
+                { id: 'technical', title: '技术要求', icon: 'fas fa-cogs' },
+                { id: 'ui', title: 'UI/UX设计', icon: 'fas fa-paint-brush' },
+                { id: 'deployment', title: '部署要求', icon: 'fas fa-cloud' }
+            ];
+
+            contentContainer.innerHTML = sections.map(section => `
+                <div class="document-section">
+                    <div class="section-title">
+                        <i class="${section.icon}"></i>
+                        ${section.title}
+                        ${!isDocumentConfirmed ? `<button class="edit-button" onclick="editSection('${section.id}')">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>` : ''}
+                    </div>
+                    <div class="section-content" id="${section.id}">
+                        ${getSectionContent(section.id, content)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 获取章节内容
+        function getSectionContent(sectionId, content) {
+            const defaultContent = {
+                overview: '一个功能完整的计算器应用，支持基本数学运算、科学计算和历史记录功能。界面简洁美观，响应式设计，适用于桌面和移动设备。',
+                features: '• 基本运算：加、减、乘、除\n• 科学计算：三角函数、对数、指数\n• 历史记录：保存计算历史\n• 快捷键支持\n• 响应式界面设计',
+                technical: '• 前端：HTML5, CSS3, JavaScript (ES6+)\n• 响应式设计：Bootstrap或原生CSS Grid\n• 浏览器兼容：Chrome, Firefox, Safari, Edge\n• 无需后端，纯前端应用',
+                ui: '• 现代化扁平设计风格\n• 深色/浅色主题切换\n• 大按钮易于点击\n• 清晰的数字显示屏\n• 流畅的动画效果',
+                deployment: '• 静态网站部署\n• 支持GitHub Pages\n• 可打包为PWA应用\n• 移动端优化'
+            };
+
+            return defaultContent[sectionId] || '暂无内容';
+        }
+
+        // 编辑文档章节
+        function editSection(sectionId) {
+            if (isDocumentConfirmed) {
+                showMessage('文档已确认，无法修改', 'warning');
+                return;
+            }
+
+            const sectionTitles = {
+                overview: '项目概述',
+                features: '功能需求',
+                technical: '技术要求',
+                ui: 'UI/UX设计',
+                deployment: '部署要求'
+            };
+
+            const message = `我想修改${sectionTitles[sectionId]}部分。请帮我优化这个部分的内容。`;
+            addMessageToChat(message, 'user');
+            
+            // 模拟AI响应
+            simulateAIResponse(`好的，我来帮您优化${sectionTitles[sectionId]}部分。请告诉我您希望如何修改？比如：\n\n• 添加新的功能点\n• 修改技术选型\n• 调整设计风格\n• 其他具体要求\n\n请详细描述您的想法。`);
+        }
+
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message || isGenerating) return;
+            
+            input.value = '';
+            addMessageToChat(message, 'user');
+            
+            // 调用AI进行文档修改
+            await processDocumentModification(message);
+        }
+
+        // 处理文档修改请求
+        async function processDocumentModification(userMessage) {
+            if (isDocumentConfirmed) {
+                addMessageToChat('文档已经确认，无法进行修改。如需修改，请重新生成文档。', 'ai');
+                return;
+            }
+
+            isGenerating = true;
+            showTypingIndicator();
+
+            try {
+                // 调用后端API进行文档修改
+                const response = await fetch('/api/modify-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        project_id: currentProjectId,
+                        modification_request: userMessage
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    hideTypingIndicator();
+                    
+                    addMessageToChat(result.response, 'ai');
+                    
+                    if (result.document_updated) {
+                        // 重新加载文档内容
+                        await loadProjectDocument();
+                        addMessageToChat('✅ 文档已更新！请查看左侧的修改内容。', 'ai');
+                    }
+                } else {
+                    throw new Error('修改请求失败');
+                }
+            } catch (error) {
+                console.error('文档修改失败:', error);
+                hideTypingIndicator();
+                addMessageToChat('抱歉，文档修改失败，请重试。', 'ai');
+            } finally {
+                isGenerating = false;
+            }
+        }
+
+        // 重新生成文档
+        async function regenerateDocument() {
+            if (isDocumentConfirmed) {
+                if (!confirm('文档已确认，重新生成将重置确认状态。确定要继续吗？')) {
+                    return;
+                }
+            }
+
+            isGenerating = true;
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('/api/regenerate-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        project_id: currentProjectId
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    hideTypingIndicator();
+                    
+                    addMessageToChat('✅ 文档已重新生成！', 'ai');
+                    await loadProjectDocument();
+                    
+                    // 重置确认状态
+                    isDocumentConfirmed = false;
+                    const statusElement = document.getElementById('documentStatus');
+                    const confirmBtn = document.getElementById('confirmBtn');
+                    statusElement.textContent = '草稿状态';
+                    statusElement.className = 'status-badge status-draft';
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = '<i class="fas fa-check"></i> 确认文档';
+                } else {
+                    throw new Error('重新生成失败');
+                }
+            } catch (error) {
+                console.error('重新生成失败:', error);
+                hideTypingIndicator();
+                addMessageToChat('抱歉，文档重新生成失败，请重试。', 'ai');
+            } finally {
+                isGenerating = false;
+            }
+        }
+
+        // 确认文档
+        async function confirmDocument() {
+            if (isDocumentConfirmed) return;
+
+            try {
+                const response = await fetch('/api/confirm-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        project_id: currentProjectId
+                    })
+                });
+
+                if (response.ok) {
+                    isDocumentConfirmed = true;
+                    
+                    // 更新UI状态
+                    const statusElement = document.getElementById('documentStatus');
+                    const confirmBtn = document.getElementById('confirmBtn');
+                    statusElement.textContent = '已确认';
+                    statusElement.className = 'status-badge status-confirmed';
+                    confirmBtn.disabled = true;
+                    confirmBtn.innerHTML = '<i class="fas fa-check"></i> 已确认';
+                    
+                    // 移除所有编辑按钮
+                    const editButtons = document.querySelectorAll('.edit-button');
+                    editButtons.forEach(btn => btn.remove());
+                    
+                    // 显示确认面板
+                    const confirmPanel = document.getElementById('confirmationPanel');
+                    confirmPanel.classList.add('show');
+                    
+                    addMessageToChat('🎉 恭喜！文档已确认。现在可以进入前端界面设计阶段了。', 'ai');
+                } else {
+                    throw new Error('确认失败');
+                }
+            } catch (error) {
+                console.error('确认文档失败:', error);
+                showMessage('确认文档失败，请重试', 'error');
+            }
+        }
+
+        // 进入前端设计阶段
+        function proceedToFrontend() {
+            const frontendUrl = `/static/interactive_frontend_editor.html?project_id=${currentProjectId}&user_id=${currentUserId}`;
+            window.location.href = frontendUrl;
+        }
+
+        // 添加消息到聊天区域
+        function addMessageToChat(message, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const icon = sender === 'user' ? 'fas fa-user' : 'fas fa-robot';
+            const senderName = sender === 'user' ? '您' : 'AI助手';
+            
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <i class="${icon}"></i> ${senderName}
+                </div>
+                <div>${message}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 显示AI正在输入指示器
+        function showTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            indicator.classList.add('show');
+        }
+
+        // 隐藏AI正在输入指示器
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            indicator.classList.remove('show');
+        }
+
+        // 模拟AI响应（用于测试）
+        function simulateAIResponse(message) {
+            showTypingIndicator();
+            setTimeout(() => {
+                hideTypingIndicator();
+                addMessageToChat(message, 'ai');
+            }, 1500);
+        }
+
+        // 清空聊天记录
+        function clearChat() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="message ai">
+                    <div class="message-header">
+                        <i class="fas fa-robot"></i> 文档AI
+                    </div>
+                    <div>聊天记录已清空。有什么可以帮助您的吗？</div>
+                </div>
+            `;
+        }
+
+        // 处理键盘事件
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // 显示通知消息
+        function showMessage(message, type = 'info') {
+            // 创建临时通知元素
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? 'var(--accent-glow)' : 'var(--success-glow)'};
+                color: var(--bg-dark);
+                padding: 15px 20px;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            showMessage(message, 'error');
+        }
+    </script>
+</body>
+</html>

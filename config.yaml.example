@@ -1,0 +1,132 @@
+# AI Development Platform Configuration
+# Copy this file to config.yaml and update with your settings
+
+# OpenAI Configuration
+openai:
+  api_key: "your-openai-api-key-here"
+  model: "gpt-4"
+  max_tokens: 4000
+  temperature: 0.7
+
+# Platform Configuration
+platform:
+  name: "AI Development Platform"
+  version: "2.1.0"
+  port: 8892
+  host: "127.0.0.1"
+  debug: true
+  log_level: "INFO"
+
+# Database Configuration
+database:
+  path: "multi_user_ai_platform.db"
+  backup_enabled: true
+  backup_interval: 86400  # 24 hours
+
+# API Optimization
+optimization:
+  cache_enabled: true
+  cache_ttl: 3600  # 1 hour
+  rate_limit: 100  # requests per minute
+  batch_size: 10
+  deduplication_enabled: true
+  prompt_optimization: true
+
+# User Management
+users:
+  default_quota: 100
+  free_test_quota: 30
+  first_discount: 0.5  # 50% discount for first recharge
+  session_timeout: 604800  # 7 days
+  max_projects_per_user: 50
+
+# Project Configuration
+projects:
+  max_files_per_project: 1000
+  max_project_size_mb: 100
+  supported_languages: ["python", "javascript", "typescript", "html", "css", "java", "go", "rust"]
+  auto_backup: true
+
+# AI Components
+ai_components:
+  document_ai_model: "gpt-4"
+  development_ai_model: "gpt-4"
+  supervisor_ai_model: "gpt-4"
+  test_ai_model: "gpt-4"
+  max_concurrent_ai_calls: 5
+
+# Security
+security:
+  jwt_secret: "your-jwt-secret-key-here"
+  password_min_length: 8
+  max_login_attempts: 5
+  lockout_duration: 1800  # 30 minutes
+  cors_origins: ["http://localhost:3000", "http://127.0.0.1:8892"]
+
+# Logging
+logging:
+  level: "INFO"
+  file: "platform.log"
+  max_size_mb: 100
+  backup_count: 5
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Performance
+performance:
+  max_workers: 4
+  worker_timeout: 300
+  memory_limit_mb: 1024
+  enable_profiling: false
+
+# Payment Configuration
+payment:
+  wechat_enabled: true
+  alipay_enabled: true
+  crypto_enabled: true
+  test_mode: true
+
+# VIP Pricing
+vip_pricing:
+  advanced:
+    price: 100  # CNY
+    quota: 200
+    commission_rate: 0.20
+  supreme:
+    price: 1000  # CNY
+    quota: 2000
+    commission_rate: 0.25
+
+# Recharge Pricing
+recharge_pricing:
+  "20": 50    # 20 CNY = 50 quota
+  "50": 100   # 50 CNY = 100 quota
+  "100": 220  # 100 CNY = 220 quota
+  "500": 1200 # 500 CNY = 1200 quota
+  "1000": 2500 # 1000 CNY = 2500 quota
+
+# Blockchain Configuration
+blockchain:
+  solana:
+    network: "devnet"
+    rpc_url: "https://api.devnet.solana.com"
+    commitment: "confirmed"
+  ethereum:
+    network: "goerli"
+    rpc_url: "https://goerli.infura.io/v3/your-project-id"
+  polygon:
+    network: "mumbai"
+    rpc_url: "https://polygon-mumbai.infura.io/v3/your-project-id"
+
+# Invitation System
+invitation:
+  reward_quota: 30
+  commission_rate: 0.15
+  daily_share_reward: 5
+  max_invitations_per_day: 10
+
+# Deployment
+deployment:
+  cloud_providers: ["aws", "azure", "gcp", "vercel", "netlify"]
+  docker_enabled: true
+  auto_deploy: false
+  deployment_timeout: 600  # 10 minutes 

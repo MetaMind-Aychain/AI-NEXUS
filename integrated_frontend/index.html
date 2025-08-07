@@ -1,0 +1,351 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>真正集成GPT-ENGINEER的AI协作开发平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .ai-integration-info {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 5px solid #28a745;
+        }
+
+        .ai-integration-info h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+
+        .ai-integration-info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .ai-integration-info li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ai-integration-info li:last-child {
+            border-bottom: none;
+        }
+
+        .main-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .requirement-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .requirement-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 15px;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .start-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-section {
+            display: none;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .ai-log {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 0 10px 10px 0;
+            transition: all 0.3s;
+        }
+
+        .ai-log:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .ai-name {
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 5px;
+        }
+
+        .ai-action {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 3px;
+        }
+
+        .ai-message {
+            color: #2c3e50;
+        }
+
+        .timestamp {
+            font-size: 0.8rem;
+            color: #adb5bd;
+            float: right;
+        }
+
+        .real-ai-indicator {
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>真正集成GPT-ENGINEER的AI协作平台</h1>
+            <div class="subtitle">
+                使用真实的AI进行协作开发，深度集成GPT-ENGINEER核心引擎
+            </div>
+        </div>
+
+        <div class="ai-integration-info">
+            <h3>真实AI协作系统特性</h3>
+            <ul>
+                <li>✅ 文档AI：真正分析用户需求，生成详细开发文档</li>
+                <li>✅ 开发AI：真正调用GPT-ENGINEER的SimpleAgent.init()和improve()方法</li>
+                <li>✅ 监督AI：真正监督代码质量，提供改进建议</li>
+                <li>✅ 测试AI：真正生成测试用例，执行代码验证</li>
+                <li>✅ 深度集成：使用原有GPT-ENGINEER核心组件，非模拟</li>
+                <li>✅ 真实协作：各AI之间真正协作，互相反馈和改进</li>
+            </ul>
+        </div>
+
+        <div class="main-panel">
+            <div class="input-section">
+                <h2>项目需求描述 <span class="real-ai-indicator">真实AI处理</span></h2>
+                <p style="color: #6c757d; margin-bottom: 15px;">
+                    请详细描述您的项目需求，真正的AI团队将协作为您开发
+                </p>
+
+                <textarea 
+                    id="requirementInput" 
+                    class="requirement-input" 
+                    placeholder="例如：我需要一个电商平台，包含用户注册登录、商品展示、购物车、订单管理等功能。要求使用Python后端，现代化前端界面，支持移动端..."
+                ></textarea>
+                
+                <button id="startButton" class="start-button" onclick="startRealAIDevelopment()">
+                    启动真实AI协作开发
+                </button>
+            </div>
+
+            <div id="progressSection" class="progress-section">
+                <h2>真实AI协作进度 <span class="real-ai-indicator">实时监控</span></h2>
+                <div id="aiLogs"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let isConnected = false;
+
+        // 连接WebSocket
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = function() {
+                console.log('WebSocket连接已建立');
+                isConnected = true;
+            };
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+            
+            ws.onclose = function() {
+                console.log('WebSocket连接已断开');
+                isConnected = false;
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        // 处理WebSocket消息
+        function handleWebSocketMessage(data) {
+            if (data.type === 'ai_log') {
+                addAILog(data);
+            } else if (data.type === 'project_completed') {
+                handleProjectCompleted(data);
+            }
+        }
+
+        // 添加AI日志
+        function addAILog(logData) {
+            const logsContainer = document.getElementById('aiLogs');
+            const logElement = document.createElement('div');
+            logElement.className = 'ai-log';
+            
+            const timestamp = new Date(logData.timestamp).toLocaleTimeString();
+            
+            logElement.innerHTML = `
+                <div class="timestamp">${timestamp}</div>
+                <div class="ai-name">${logData.ai_name} <span class="real-ai-indicator">真实AI</span></div>
+                <div class="ai-action">${logData.action}</div>
+                <div class="ai-message">${logData.message}</div>
+            `;
+            
+            logsContainer.appendChild(logElement);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        // 处理项目完成
+        function handleProjectCompleted(data) {
+            document.getElementById('startButton').disabled = false;
+            document.getElementById('startButton').textContent = '启动真实AI协作开发';
+            
+            const message = data.ai_collaboration ? 
+                `真实AI协作开发完成！\n项目名称：${data.project.name}\n文件数量：${data.files_count}\n保存路径：${data.project_path}\n\n✅ 所有AI都参与了真实工作` :
+                `项目开发完成！\n项目名称：${data.project.name}\n文件数量：${data.files_count}\n保存路径：${data.project_path}`;
+            
+            alert(message);
+        }
+
+        // 开始真实AI开发
+        async function startRealAIDevelopment() {
+            const requirement = document.getElementById('requirementInput').value.trim();
+            
+            if (!requirement) {
+                alert('请输入项目需求描述');
+                return;
+            }
+            
+            const button = document.getElementById('startButton');
+            button.disabled = true;
+            button.textContent = '真实AI协作中...';
+            
+            document.getElementById('progressSection').classList.add('active');
+            document.getElementById('aiLogs').innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/start-real-ai-development', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        requirement: requirement
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('真实AI开发请求失败');
+                }
+                
+            } catch (error) {
+                console.error('启动真实AI开发失败:', error);
+                alert('启动真实AI协作开发失败，请重试');
+                
+                button.disabled = false;
+                button.textContent = '启动真实AI协作开发';
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            connectWebSocket();
+        });
+    </script>
+</body>
+</html>
+        

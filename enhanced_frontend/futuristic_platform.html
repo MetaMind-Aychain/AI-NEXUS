@@ -1,0 +1,3662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI协作开发平台 - 未来科技</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-glow: #00f5ff;
+            --secondary-glow: #ff006e;
+            --accent-glow: #7c3aed;
+            --success-glow: #00ff88;
+            --warning-glow: #ffaa00;
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(15, 15, 25, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --border-glow: rgba(0, 245, 255, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-accent: #00f5ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255, 0, 110, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* 背景动画 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(45deg, transparent 49%, rgba(0, 245, 255, 0.03) 50%, transparent 51%),
+                linear-gradient(-45deg, transparent 49%, rgba(255, 0, 110, 0.03) 50%, transparent 51%);
+            background-size: 60px 60px;
+            animation: backgroundMove 20s linear infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes backgroundMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        /* 毛玻璃效果基类 */
+        .glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-intense {
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(0, 245, 255, 0.5);
+            border-radius: 25px;
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                0 0 30px rgba(0, 245, 255, 0.1);
+        }
+
+        /* 登录界面 */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .login-box {
+            width: 480px;
+            padding: 50px;
+            position: relative;
+            animation: floatIn 1s ease-out;
+        }
+
+        @keyframes floatIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+        }
+
+        .login-header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-accent);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 15px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-glow);
+            box-shadow: 
+                0 0 20px rgba(0, 245, 255, 0.3),
+                inset 0 0 20px rgba(0, 245, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn {
+            padding: 18px 30px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-glow), var(--accent-glow));
+            color: var(--bg-dark);
+            box-shadow: 0 10px 30px rgba(0, 245, 255, 0.3);
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 245, 255, 0.4);
+        }
+
+        .welcome-benefits {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .welcome-benefits h4 {
+            color: var(--success-glow);
+            margin-bottom: 15px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .welcome-benefits p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin: 8px 0;
+        }
+
+        /* 主应用界面 */
+        .main-app {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 40px;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glow);
+            background: rgba(10, 10, 15, 0.9);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo-section h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .balance-display {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(124, 58, 237, 0.1));
+            border: 1px solid var(--primary-glow);
+            border-radius: 25px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.2), transparent);
+            animation: balanceGlow 3s infinite;
+        }
+
+        @keyframes balanceGlow {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: -100%; }
+        }
+
+        .balance-number {
+            color: var(--primary-glow);
+            font-size: 1.2rem;
+            margin: 0 8px;
+        }
+
+        /* 侧边导航 */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 90px;
+            bottom: 0;
+            width: 280px;
+            padding: 30px 20px;
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-glow);
+            background: rgba(10, 10, 15, 0.8);
+            z-index: 50;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 25px;
+            margin: 8px 0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid transparent;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.1), transparent);
+            transition: left 0.3s;
+        }
+
+        .nav-item:hover::before,
+        .nav-item.active::before {
+            left: 0;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(0, 245, 255, 0.1);
+            border-color: var(--primary-glow);
+            transform: translateX(10px);
+        }
+
+        .nav-item i {
+            width: 24px;
+            margin-right: 15px;
+            color: var(--primary-glow);
+            font-size: 1.2rem;
+        }
+
+        .nav-item span {
+            font-weight: 500;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            margin-left: 280px;
+            margin-top: 90px;
+            padding: 40px;
+            min-height: calc(100vh - 90px);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            margin-bottom: 40px;
+        }
+
+        .section-header h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, var(--primary-glow), var(--accent-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* AI开发界面 */
+        .development-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .dev-card {
+            padding: 35px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .dev-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(0, 245, 255, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .card-header i {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-glow), var(--accent-glow));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--bg-dark);
+            font-size: 1.2rem;
+        }
+
+        .card-header h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            color: var(--text-accent);
+        }
+
+        .requirement-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 15px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .requirement-input:focus {
+            outline: none;
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 25px rgba(0, 245, 255, 0.2);
+        }
+
+        .cost-display {
+            margin: 25px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(255, 170, 0, 0.1), rgba(255, 0, 110, 0.1));
+            border: 1px solid var(--warning-glow);
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .cost-display::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(45deg, var(--warning-glow), var(--secondary-glow));
+            border-radius: 15px;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        .cost-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .cost-header i {
+            color: var(--warning-glow);
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+
+        .cost-header h4 {
+            font-family: 'Orbitron', monospace;
+            color: var(--warning-glow);
+        }
+
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cost-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            color: var(--text-accent);
+        }
+
+        .dev-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn-test {
+            flex: 1;
+            background: linear-gradient(135deg, var(--success-glow), var(--primary-glow));
+            color: var(--bg-dark);
+        }
+
+        .btn-full {
+            flex: 1;
+            background: linear-gradient(135deg, var(--warning-glow), var(--secondary-glow));
+            color: var(--bg-dark);
+        }
+
+        /* 进度显示 */
+        .progress-container {
+            margin: 25px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-glow), var(--accent-glow));
+            transition: width 0.5s ease;
+            width: 0%;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: progressShine 2s infinite;
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            font-family: 'Orbitron', monospace;
+            color: var(--text-accent);
+            font-weight: 600;
+        }
+
+        .logs-container {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            max-height: 350px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            margin: 8px 0;
+            padding: 12px;
+            background: rgba(0, 245, 255, 0.05);
+            border-left: 3px solid var(--primary-glow);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            animation: logSlideIn 0.3s ease-out;
+        }
+
+        @keyframes logSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .log-timestamp {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        /* 快速操作按钮 */
+        .quick-actions {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .quick-action {
+            flex: 1;
+            padding: 25px;
+            text-align: center;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            background: rgba(0, 245, 255, 0.05);
+        }
+
+        .quick-action:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 245, 255, 0.2);
+            border-color: var(--primary-glow);
+        }
+
+        .quick-action i {
+            font-size: 2.5rem;
+            color: var(--primary-glow);
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .quick-action h4 {
+            color: var(--text-accent);
+            margin-bottom: 8px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .quick-action p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .sidebar {
+                transform: translateX(-280px);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .development-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 15px 20px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .login-box {
+                width: 90%;
+                padding: 30px;
+            }
+            
+            .dev-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* 加载动画 */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 245, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-glow);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 通知系统 */
+        .notification {
+            position: fixed;
+            top: 120px;
+            right: 30px;
+            padding: 20px 25px;
+            border-radius: 15px;
+            color: white;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            border: 1px solid;
+            animation: notificationSlide 0.4s ease-out;
+            max-width: 400px;
+        }
+
+        .notification.success {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: var(--success-glow);
+        }
+
+        .notification.error {
+            background: rgba(255, 0, 110, 0.1);
+            border-color: var(--secondary-glow);
+        }
+
+        .notification.info {
+            background: rgba(0, 245, 255, 0.1);
+            border-color: var(--primary-glow);
+        }
+
+        @keyframes notificationSlide {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* 确认状态样式 */
+        .confirmed-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 245, 255, 0.2));
+            border: 1px solid var(--success-glow);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--success-glow);
+            margin-left: 15px;
+        }
+
+        .confirmed-indicator i {
+            color: var(--success-glow);
+        }
+
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 状态指示器 */
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-pending { background: var(--warning-glow); }
+        .status-processing { background: var(--primary-glow); animation: pulse 1.5s infinite; }
+        .status-completed { background: var(--success-glow); }
+        .status-error { background: var(--secondary-glow); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录界面 -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-box glass-intense">
+            <div class="login-header">
+                <h1><i class="fas fa-robot"></i> AI-NEXUS</h1>
+                <p>未来科技驱动的智能开发平台</p>
+            </div>
+            
+            <div class="input-group">
+                <label>用户标识</label>
+                <input type="text" id="usernameInput" placeholder="输入您的用户名" required>
+            </div>
+            
+            <div class="input-group">
+                <label>联系邮箱</label>
+                <input type="email" id="emailInput" placeholder="邮箱地址（可选）">
+            </div>
+            
+            <div class="input-group">
+                <label>邀请密钥</label>
+                <input type="text" id="inviterCodeInput" placeholder="朋友邀请码（可选）">
+            </div>
+            
+            <button class="btn btn-primary" onclick="login()">
+                <i class="fas fa-sign-in-alt"></i> 连接系统
+            </button>
+            
+            <div class="welcome-benefits">
+                <h4>🚀 新用户专享特权</h4>
+                <p>🎁 30个API配额立即到账</p>
+                <p>🆓 一次完整免费开发体验</p>
+                <p>💰 首次充值享受50%折扣</p>
+                <p>🤖 尖端AI技术无限可能</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主应用界面 -->
+    <div id="mainApp" class="main-app">
+        <!-- 顶部导航栏 -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1><i class="fas fa-cube"></i> AI-NEXUS</h1>
+                </div>
+                <div class="user-section">
+                    <div class="balance-display">
+                        <i class="fas fa-bolt"></i>
+                        API配额
+                        <span id="apiBalance" class="balance-number">30</span>
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <button class="btn" onclick="logout()" style="padding: 10px 20px; background: rgba(255,0,110,0.2); border: 1px solid var(--secondary-glow);">
+                        <i class="fas fa-power-off"></i> 断开
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 侧边导航 -->
+        <nav class="sidebar">
+            <div class="nav-item active" onclick="switchSection('develop')">
+                <i class="fas fa-brain"></i>
+                <span>AI智能开发</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('projects')">
+                <i class="fas fa-project-diagram"></i>
+                <span>项目管控中心</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('recharge')">
+                <i class="fas fa-bolt"></i>
+                <span>能量充值站</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('share')">
+                <i class="fas fa-share-nodes"></i>
+                <span>病毒式推广</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('vip')">
+                <i class="fas fa-crown"></i>
+                <span>VIP会员中心</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('blockchain')">
+                <i class="fas fa-cubes"></i>
+                <span>区块链中心</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('analytics')">
+                <i class="fas fa-chart-line"></i>
+                <span>数据分析台</span>
+            </div>
+        </nav>
+
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <!-- AI开发区域 -->
+            <section id="develop" class="content-section active">
+                <div class="section-header">
+                    <h2>AI智能开发实验室</h2>
+                    <p>利用多重AI协作，从想法到产品的完整自动化开发流程</p>
+                </div>
+
+                <div class="development-grid">
+                    <!-- 需求输入区域 -->
+                    <div class="dev-card glass-intense">
+                        <div class="card-header">
+                            <i class="fas fa-edit"></i>
+                            <h3>项目需求定义</h3>
+                        </div>
+                        
+                        <textarea id="requirementInput" class="requirement-input" 
+                                  placeholder="🚀 描述您的项目愿景...
+
+示例：创建一个未来感十足的社交平台
+━━━━━━━━━━━━━━━━━━━━━
+核心功能矩阵：
+• 🔐 量子级用户认证系统
+• 👤 全息个人资料管理 
+• 📢 智能动态发布引擎
+• 🤝 AI推荐社交网络
+• ❤️ 情感分析互动系统
+• 💬 实时全息通讯
+• 🔍 神经网络搜索算法
+• 🔥 AI策展热门内容
+
+技术指标要求：
+• 前端：React + 全息UI界面
+• 后端：Python FastAPI + 微服务架构  
+• 数据库：PostgreSQL + Redis缓存
+• 部署：Kubernetes + 容器编排
+• AI集成：GPT-4 + 计算机视觉
+
+━━━━━━━━━━━━━━━━━━━━━
+让AI为您构建完整的未来应用！"></textarea>
+
+                        <div class="cost-display">
+                            <div class="cost-header">
+                                <i class="fas fa-calculator"></i>
+                                <h4>能量消耗预估</h4>
+                            </div>
+                            <div id="costBreakdown">
+                                <div class="cost-item">
+                                    <span>🆓 免费体验模式</span>
+                                    <span id="freeTestStatus">可用</span>
+                                </div>
+                                <div class="cost-item">
+                                    <span>⚡ 快速测试模式</span>
+                                    <span>1 API配额</span>
+                                </div>
+                                <div class="cost-item">
+                                    <span>🚀 完整开发模式</span>
+                                    <span>30 API配额</span>
+                                </div>
+                                <div class="cost-item">
+                                    <span>当前配额余额</span>
+                                    <span id="currentBalance">30</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dev-actions">
+                            <button id="testBtn" class="btn btn-test" onclick="startAIDevelopment(true)">
+                                <i class="fas fa-flask"></i> 快速验证
+                            </button>
+                            <button id="fullBtn" class="btn btn-full" onclick="startAIDevelopment(false)">
+                                <i class="fas fa-rocket"></i> 完整开发
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 进度监控区域 -->
+                    <div class="dev-card glass-intense">
+                        <div class="card-header">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <h3>开发进度监控</h3>
+                        </div>
+                        
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div id="progressFill" class="progress-fill"></div>
+                            </div>
+                            <div id="progressText" class="progress-text">系统待命中...</div>
+                        </div>
+
+                        <div class="logs-container">
+                            <div id="aiLogs">
+                                <div class="log-entry">
+                                    <strong>[系统]</strong> AI协作开发平台已就绪
+                                    <div class="log-timestamp">等待用户指令...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 快速操作 -->
+                        <div class="quick-actions">
+                            <div class="quick-action" onclick="openDocumentViewer()">
+                                <i class="fas fa-file-code"></i>
+                                <h4>文档审查</h4>
+                                <p>智能文档生成</p>
+                            </div>
+                            <div class="quick-action" onclick="openFrontendEditor()">
+                                <i class="fas fa-palette"></i>
+                                <h4>界面设计</h4>
+                                <p>可视化编辑器</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 项目管理区域 -->
+            <section id="projects" class="content-section">
+                <div class="section-header">
+                    <h2>项目管控中心</h2>
+                    <p>实时监控所有项目状态，管理部署和版本</p>
+                </div>
+                
+                <div id="projectsList" class="glass-intense" style="padding: 30px; margin-top: 20px;">
+                    <div style="text-align: center; color: var(--text-secondary);">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>正在同步项目数据...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 充值中心区域 -->
+            <section id="recharge" class="content-section">
+                <div class="section-header">
+                    <h2>能量充值站</h2>
+                    <p>为您的AI开发之旅充电，解锁无限可能</p>
+                </div>
+                
+                <div id="discountBanner" class="cost-display hidden">
+                    <div class="cost-header">
+                        <i class="fas fa-fire"></i>
+                        <h4>🎉 新用户专享：首充半价特权！</h4>
+                    </div>
+                    <p style="color: var(--success-glow); font-size: 1.1rem;">限时优惠，所有能量包均享受50%超级折扣</p>
+                </div>
+                
+                <div class="development-grid" style="margin-top: 30px;">
+                    <!-- 能量包选择 -->
+                    <div id="rechargePlans" class="glass-intense" style="padding: 30px;">
+                        <h3 style="color: var(--text-accent); margin-bottom: 25px; font-family: 'Orbitron', monospace;">能量包套餐</h3>
+                        <!-- 充值套餐将通过JavaScript动态生成 -->
+                    </div>
+                    
+                    <!-- 支付界面 -->
+                    <div class="glass-intense" style="padding: 30px;">
+                        <h3 style="color: var(--text-accent); margin-bottom: 25px; font-family: 'Orbitron', monospace;">支付终端</h3>
+                        
+                        <div id="selectedPlanInfo" class="hidden" style="margin-bottom: 25px; padding: 20px; background: rgba(0,245,255,0.1); border-radius: 15px;">
+                            <h4 style="color: var(--primary-glow);">已选择套餐</h4>
+                            <div id="planDetails"></div>
+                        </div>
+
+                        <div id="paymentMethods" class="hidden">
+                            <div style="display: flex; gap: 15px; margin: 20px 0;">
+                                <button class="btn" onclick="processPayment('wechat')" style="flex: 1; background: linear-gradient(135deg, #07c160, #00d976);">
+                                    <i class="fab fa-weixin"></i> 微信支付
+                                </button>
+                                <button class="btn" onclick="processPayment('alipay')" style="flex: 1; background: linear-gradient(135deg, #1677ff, #69c0ff);">
+                                    <i class="fab fa-alipay"></i> 支付宝
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 推广分享区域 -->
+            <section id="share" class="content-section">
+                <div class="section-header">
+                    <h2>病毒式推广系统</h2>
+                    <p>分享创造价值，每次推广都能获得丰厚奖励</p>
+                </div>
+                
+                <div class="development-grid">
+                    <!-- 邀请码展示 -->
+                    <div class="glass-intense" style="padding: 40px; text-align: center;">
+                        <h3 style="color: var(--text-accent); margin-bottom: 25px; font-family: 'Orbitron', monospace;">
+                            <i class="fas fa-key"></i> 专属邀请密钥
+                        </h3>
+                        
+                        <div style="background: rgba(0,0,0,0.4); padding: 30px; border-radius: 20px; margin: 25px 0; border: 1px solid var(--primary-glow);">
+                            <div style="font-family: 'Orbitron', monospace; font-size: 2.5rem; font-weight: 900; color: var(--primary-glow); margin-bottom: 15px; letter-spacing: 3px;">
+                                <span id="invitationCode">加载中...</span>
+                            </div>
+                            <button class="btn btn-primary" onclick="copyInvitationCode()" style="margin-top: 15px;">
+                                <i class="fas fa-copy"></i> 复制密钥
+                            </button>
+                        </div>
+                        
+                        <div class="cost-display" style="margin-top: 25px;">
+                            <div class="cost-header">
+                                <i class="fas fa-gift"></i>
+                                <h4>奖励机制</h4>
+                            </div>
+                            <div class="cost-item">
+                                <span>好友注册成功</span>
+                                <span style="color: var(--success-glow);">+30 配额</span>
+                            </div>
+                            <div class="cost-item">
+                                <span>好友充值奖励</span>
+                                <span style="color: var(--success-glow);">+15% 配额</span>
+                            </div>
+                            <div class="cost-item">
+                                <span>分享平台奖励</span>
+                                <span style="color: var(--success-glow);">+5 配额</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 分享统计 -->
+                    <div class="glass-intense" style="padding: 40px;">
+                        <h3 style="color: var(--text-accent); margin-bottom: 25px; font-family: 'Orbitron', monospace;">
+                            <i class="fas fa-chart-line"></i> 推广战绩
+                        </h3>
+                        
+                        <div id="shareStats">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                                <div style="text-align: center; padding: 20px; background: rgba(0,255,136,0.1); border-radius: 15px;">
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--success-glow);" id="totalInvitations">0</div>
+                                    <div style="color: var(--text-secondary);">成功邀请</div>
+                                </div>
+                                <div style="text-align: center; padding: 20px; background: rgba(0,245,255,0.1); border-radius: 15px;">
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--primary-glow);" id="totalRewards">0</div>
+                                    <div style="color: var(--text-secondary);">累计奖励</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <h4 style="color: var(--text-accent); margin-bottom: 20px;">快速分享</h4>
+                            <div style="display: flex; gap: 15px;">
+                                <button class="btn" onclick="shareToWeChat()" style="flex: 1; background: linear-gradient(135deg, #07c160, #00d976);">
+                                    <i class="fab fa-weixin"></i> 微信
+                                </button>
+                                <button class="btn" onclick="shareToWeibo()" style="flex: 1; background: linear-gradient(135deg, #e6162d, #ff6b6b);">
+                                    <i class="fab fa-weibo"></i> 微博
+                                </button>
+                                <button class="btn" onclick="shareToQQ()" style="flex: 1; background: linear-gradient(135deg, #12b7f5, #1890ff);">
+                                    <i class="fab fa-qq"></i> QQ空间
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIP会员中心 -->
+            <section id="vip" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-crown"></i> VIP会员中心</h2>
+                    <p>专享特权，解锁无限可能</p>
+                </div>
+                
+                <!-- 当前VIP状态 -->
+                <div id="vipStatus" class="glass-intense" style="padding: 40px; margin-bottom: 30px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                        <div>
+                            <h3 style="color: var(--text-accent); font-family: 'Orbitron', monospace;">
+                                <i class="fas fa-user-crown"></i> 当前等级：<span id="currentVipLevel">常规会员</span>
+                            </h3>
+                            <p id="vipExpires" style="color: var(--text-secondary); margin-top: 5px;">享受基础AI开发服务</p>
+                        </div>
+                        <div id="vipBadge" style="text-align: center;">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="vipBenefits" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <!-- VIP权益将通过JavaScript动态填充 -->
+                    </div>
+                </div>
+
+                <!-- VIP套餐选择 -->
+                <div class="development-grid">
+                    <!-- 高级会员 -->
+                    <div class="glass-intense vip-plan" style="padding: 40px; position: relative; border: 2px solid #FFD700;">
+                        <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #FFD700; color: #000; padding: 8px 20px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;">
+                            <i class="fas fa-star"></i> 推荐
+                        </div>
+                        
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <div style="width: 100px; height: 100px; margin: 0 auto 20px; border-radius: 50%; background: linear-gradient(135deg, #FFD700, #FFA500); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #000;">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <h3 style="color: #FFD700; font-family: 'Orbitron', monospace; font-size: 1.8rem; margin-bottom: 10px;">高级会员</h3>
+                            <div style="font-size: 2.5rem; font-weight: bold; color: #FFD700; margin-bottom: 5px;">￥100<span style="font-size: 1rem; color: var(--text-secondary);">/月</span></div>
+                            <p style="color: var(--text-secondary);">月赠200配额</p>
+                        </div>
+
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: var(--text-accent); margin-bottom: 15px; text-align: center;">专享特权</h4>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check" style="color: #FFD700;"></i>
+                                    <span>免费一键上云部署</span>
+                                </li>
+                                <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check" style="color: #FFD700;"></i>
+                                    <span>免费一键上链服务</span>
+                                </li>
+                                <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check" style="color: #FFD700;"></i>
+                                    <span>每月赠送200配额</span>
+                                </li>
+                                <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check" style="color: #FFD700;"></i>
+                                    <span>佣金率提升5%</span>
+                                </li>
+                                <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check" style="color: #FFD700;"></i>
+                                    <span>VIP专属分享链接</span>
+                                </li>
+                                <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check" style="color: #FFD700;"></i>
+                                    <span>邀请用户额外+20配额</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <button class="btn" onclick="upgradeVIP(1)" style="width: 100%; background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; font-weight: bold; padding: 15px;">
+                            <i class="fas fa-crown"></i> 立即升级
+                        </button>
+                    </div>
+
+                    <!-- 至尊会员 -->
+                    <div class="glass-intense vip-plan" style="padding: 40px; position: relative; border: 2px solid #8A2BE2;">
+                        <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #8A2BE2; color: #fff; padding: 8px 20px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;">
+                            <i class="fas fa-diamond"></i> 至尊
+                        </div>
+                        
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <div style="width: 100px; height: 100px; margin: 0 auto 20px; border-radius: 50%; background: linear-gradient(135deg, #8A2BE2, #9370DB); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #fff; position: relative;">
+                                <i class="fas fa-gem"></i>
+                                <div style="position: absolute; inset: -5px; border-radius: 50%; background: conic-gradient(#8A2BE2, #9370DB, #DDA0DD, #8A2BE2); animation: rotate 3s linear infinite; z-index: -1;"></div>
+                            </div>
+                            <h3 style="color: #8A2BE2; font-family: 'Orbitron', monospace; font-size: 1.8rem; margin-bottom: 10px;">至尊会员</h3>
+                            <div style="font-size: 2.5rem; font-weight: bold; color: #8A2BE2; margin-bottom: 5px;">￥1000<span style="font-size: 1rem; color: var(--text-secondary);">/月</span></div>
+                            <p style="color: var(--text-secondary);">月赠2000配额</p>
+                        </div>
+
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: var(--text-accent); margin-bottom: 15px; text-align: center;">至尊特权</h4>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check" style="color: #8A2BE2;"></i>
+                                    <span>高级会员所有权益</span>
+                                </li>
+                                <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check" style="color: #8A2BE2;"></i>
+                                    <span>所有功能享受半价</span>
+                                </li>
+                                <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check" style="color: #8A2BE2;"></i>
+                                    <span>特殊要求定制部署</span>
+                                </li>
+                                <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check" style="color: #8A2BE2;"></i>
+                                    <span>每月赠送2000配额</span>
+                                </li>
+                                <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check" style="color: #8A2BE2;"></i>
+                                    <span>专属客服支持</span>
+                                </li>
+                                <li style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check" style="color: #8A2BE2;"></i>
+                                    <span>优先技术支持</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <button class="btn" onclick="upgradeVIP(2)" style="width: 100%; background: linear-gradient(135deg, #8A2BE2, #9370DB); color: #fff; font-weight: bold; padding: 15px;">
+                            <i class="fas fa-gem"></i> 立即升级
+                        </button>
+                    </div>
+                </div>
+
+                <!-- VIP记录 -->
+                <div class="glass-intense" style="padding: 30px; margin-top: 30px;">
+                    <h3 style="color: var(--text-accent); margin-bottom: 20px; font-family: 'Orbitron', monospace;">
+                        <i class="fas fa-history"></i> VIP记录
+                    </h3>
+                    <div id="vipRecords" style="min-height: 200px;">
+                        <div style="text-align: center; color: var(--text-secondary); padding: 60px 20px;">
+                            <i class="fas fa-list" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <p>暂无VIP记录</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 区块链中心 -->
+            <section id="blockchain" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-cubes"></i> 区块链数据中心</h2>
+                    <p>管理您的链上数据和数字资产</p>
+                </div>
+                
+                <!-- 区块链统计 -->
+                <div class="development-grid" style="margin-bottom: 30px;">
+                    <div class="glass-intense" style="padding: 30px; text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--primary-glow); margin-bottom: 10px;">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <h3 style="color: var(--text-accent); margin-bottom: 5px;">上链项目</h3>
+                        <div id="blockchainProjectCount" style="font-size: 1.8rem; font-weight: bold; color: var(--primary-glow);">0</div>
+                    </div>
+                    
+                    <div class="glass-intense" style="padding: 30px; text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--accent-glow); margin-bottom: 10px;">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <h3 style="color: var(--text-accent); margin-bottom: 5px;">智能合约</h3>
+                        <div id="smartContractCount" style="font-size: 1.8rem; font-weight: bold; color: var(--accent-glow);">0</div>
+                    </div>
+                    
+                    <div class="glass-intense" style="padding: 30px; text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--warning-glow); margin-bottom: 10px;">
+                            <i class="fas fa-gas-pump"></i>
+                        </div>
+                        <h3 style="color: var(--text-accent); margin-bottom: 5px;">Gas消耗</h3>
+                        <div id="totalGasUsed" style="font-size: 1.8rem; font-weight: bold; color: var(--warning-glow);">0</div>
+                    </div>
+                </div>
+
+                <!-- 快速操作 -->
+                <div class="glass-intense" style="padding: 30px; margin-bottom: 30px;">
+                    <h3 style="color: var(--text-accent); margin-bottom: 20px; font-family: 'Orbitron', monospace;">
+                        <i class="fas fa-rocket"></i> 快速上链
+                    </h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <button class="btn" onclick="createRealBlockchainWallet()" style="background: var(--success-glow); color: var(--bg-dark); padding: 20px; height: auto; flex-direction: column; gap: 10px;">
+                            <i class="fas fa-wallet" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <div style="font-weight: bold;">创建区块链钱包</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">免费 - 真实钱包</div>
+                            </div>
+                        </button>
+                        
+                        <button class="btn" onclick="deployUserProfileToRealBlockchain()" style="background: var(--primary-glow); color: var(--bg-dark); padding: 20px; height: auto; flex-direction: column; gap: 10px;">
+                            <i class="fas fa-user" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <div style="font-weight: bold;">用户档案真实上链</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">15配额 - 永久存储</div>
+                            </div>
+                        </button>
+                        
+                        <button class="btn" onclick="showWalletDetails()" style="background: var(--accent-glow); color: var(--bg-dark); padding: 20px; height: auto; flex-direction: column; gap: 10px;">
+                            <i class="fas fa-eye" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <div style="font-weight: bold;">查看钱包详情</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">实时余额查询</div>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <!-- 网络选择 -->
+                    <div style="margin-top: 20px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                        <h4 style="color: var(--text-accent); margin-bottom: 15px;">选择区块链网络</h4>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="blockchain_network" value="solana-devnet" checked>
+                                <span style="color: var(--success-glow);">Solana开发网 (推荐)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="blockchain_network" value="ethereum">
+                                <span style="color: var(--primary-glow);">以太坊主网</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="blockchain_network" value="polygon">
+                                <span style="color: var(--accent-glow);">Polygon网络</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 区块链记录 -->
+                <div class="glass-intense" style="padding: 30px; margin-bottom: 30px;">
+                    <h3 style="color: var(--text-accent); margin-bottom: 20px; font-family: 'Orbitron', monospace;">
+                        <i class="fas fa-history"></i> 区块链记录
+                    </h3>
+                    <div id="blockchainRecords" style="min-height: 300px;">
+                        <div style="text-align: center; color: var(--text-secondary); padding: 60px 20px;">
+                            <i class="fas fa-cube" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <p>暂无区块链记录</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 智能合约 -->
+                <div class="glass-intense" style="padding: 30px;">
+                    <h3 style="color: var(--text-accent); margin-bottom: 20px; font-family: 'Orbitron', monospace;">
+                        <i class="fas fa-file-contract"></i> 我的智能合约
+                    </h3>
+                    <div id="smartContracts" style="min-height: 300px;">
+                        <div style="text-align: center; color: var(--text-secondary); padding: 60px 20px;">
+                            <i class="fas fa-file-contract" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <p>暂无智能合约</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 数据分析区域 -->
+            <section id="analytics" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line"></i> 数据分析台</h2>
+                    <p>深度洞察您的使用数据和成长轨迹</p>
+                </div>
+                
+                <!-- 核心指标 -->
+                <div class="development-grid" style="margin-bottom: 30px;">
+                    <div class="glass-intense" style="padding: 30px; text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--primary-glow); margin-bottom: 10px;">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <h3 style="color: var(--text-accent); margin-bottom: 5px;">总项目数</h3>
+                        <div id="analyticsProjectCount" style="font-size: 1.8rem; font-weight: bold; color: var(--primary-glow);">0</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
+                            完成率: <span id="projectCompletionRate">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-intense" style="padding: 30px; text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--accent-glow); margin-bottom: 10px;">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <h3 style="color: var(--text-accent); margin-bottom: 5px;">配额使用</h3>
+                        <div id="analyticsQuotaUsed" style="font-size: 1.8rem; font-weight: bold; color: var(--accent-glow);">0</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
+                            剩余: <span id="quotaRemaining">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-intense" style="padding: 30px; text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--success-glow); margin-bottom: 10px;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 style="color: var(--text-accent); margin-bottom: 5px;">邀请用户</h3>
+                        <div id="analyticsInvitations" style="font-size: 1.8rem; font-weight: bold; color: var(--success-glow);">0</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
+                            奖励: <span id="invitationRewards">0</span>配额
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图表区域 -->
+                <div class="development-grid" style="margin-bottom: 30px;">
+                    <!-- 使用趋势图 -->
+                    <div class="glass-intense" style="padding: 30px;">
+                        <h3 style="color: var(--text-accent); margin-bottom: 20px; font-family: 'Orbitron', monospace;">
+                            <i class="fas fa-chart-area"></i> 使用趋势
+                        </h3>
+                        <div id="usageTrendChart" style="height: 300px; background: rgba(0,0,0,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
+                            <div style="text-align: center;">
+                                <i class="fas fa-chart-line" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                                <p>7天配额使用趋势</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 项目分布图 -->
+                    <div class="glass-intense" style="padding: 30px;">
+                        <h3 style="color: var(--text-accent); margin-bottom: 20px; font-family: 'Orbitron', monospace;">
+                            <i class="fas fa-chart-pie"></i> 项目状态分布
+                        </h3>
+                        <div id="projectDistributionChart" style="height: 300px; background: rgba(0,0,0,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
+                            <div style="text-align: center;">
+                                <i class="fas fa-chart-pie" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                                <p>项目状态统计</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 详细统计 -->
+                <div class="development-grid">
+                    <!-- 收支分析 -->
+                    <div class="glass-intense" style="padding: 30px;">
+                        <h3 style="color: var(--text-accent); margin-bottom: 20px; font-family: 'Orbitron', monospace;">
+                            <i class="fas fa-wallet"></i> 收支分析
+                        </h3>
+                        <div id="incomeExpenseAnalysis" style="min-height: 200px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div style="text-align: center; padding: 20px; background: rgba(0,255,136,0.1); border-radius: 10px;">
+                                    <div style="color: var(--success-glow); font-size: 1.5rem; font-weight: bold;" id="totalIncome">0</div>
+                                    <div style="color: var(--text-secondary); font-size: 0.9rem;">总收入(配额)</div>
+                                </div>
+                                <div style="text-align: center; padding: 20px; background: rgba(255,107,107,0.1); border-radius: 10px;">
+                                    <div style="color: var(--warning-glow); font-size: 1.5rem; font-weight: bold;" id="totalExpense">0</div>
+                                    <div style="color: var(--text-secondary); font-size: 0.9rem;">总支出(配额)</div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                                <h4 style="color: var(--text-accent); margin-bottom: 10px;">收入来源</h4>
+                                <div id="incomeBreakdown">
+                                    <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                                        <span>充值收入:</span>
+                                        <span id="rechargeIncome">0配额</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                                        <span>邀请奖励:</span>
+                                        <span id="inviteIncome">0配额</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                                        <span>分享奖励:</span>
+                                        <span id="shareIncome">0配额</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 平台活跃度 -->
+                    <div class="glass-intense" style="padding: 30px;">
+                        <h3 style="color: var(--text-accent); margin-bottom: 20px; font-family: 'Orbitron', monospace;">
+                            <i class="fas fa-fire"></i> 平台活跃度
+                        </h3>
+                        <div id="activityAnalysis" style="min-height: 200px;">
+                            <div style="margin-bottom: 20px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <span>登录天数</span>
+                                    <span id="loginDays" style="font-weight: bold; color: var(--primary-glow);">0天</span>
+                                </div>
+                                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                                    <div id="loginProgress" style="height: 100%; background: var(--primary-glow); width: 0%; transition: width 0.3s ease;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <span>AI开发次数</span>
+                                    <span id="developmentCount" style="font-weight: bold; color: var(--accent-glow);">0次</span>
+                                </div>
+                                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                                    <div id="developmentProgress" style="height: 100%; background: var(--accent-glow); width: 0%; transition: width 0.3s ease;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <span>分享活跃度</span>
+                                    <span id="shareActivity" style="font-weight: bold; color: var(--success-glow);">0%</span>
+                                </div>
+                                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                                    <div id="shareProgress" style="height: 100%; background: var(--success-glow); width: 0%; transition: width 0.3s ease;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 成长建议 -->
+                <div class="glass-intense" style="padding: 30px; margin-top: 30px;">
+                    <h3 style="color: var(--text-accent); margin-bottom: 20px; font-family: 'Orbitron', monospace;">
+                        <i class="fas fa-lightbulb"></i> 智能建议
+                    </h3>
+                    <div id="growthSuggestions" style="min-height: 100px;">
+                        <div style="text-align: center; color: var(--text-secondary); padding: 40px 20px;">
+                            <i class="fas fa-robot" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <p>基于您的使用数据，AI正在生成个性化建议...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentUserId = null;
+        let currentProject = null;
+        let selectedPlan = null;
+        let ws = null;
+        let hasUsedFreeTest = false;
+        let isFirstTimeUser = true;
+        let userStats = {};
+        let userVipInfo = { level: 0, name: "常规会员" };
+
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            initializeRechargeOptions();
+        });
+
+        // 检查登录状态
+        function checkLoginStatus() {
+            const savedUserId = localStorage.getItem('userId');
+            const loginTime = localStorage.getItem('loginTime');
+            
+            if (savedUserId && loginTime) {
+                const daysSinceLogin = (Date.now() - parseInt(loginTime)) / (1000 * 60 * 60 * 24);
+                if (daysSinceLogin < 7) {
+                    currentUserId = savedUserId;
+                    showMainApp();
+                    return;
+                }
+            }
+            
+            showLoginPage();
+        }
+
+        // 显示登录页面
+        function showLoginPage() {
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+        }
+
+        // 显示主应用
+        function showMainApp() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            loadUserData();
+            loadProjectsList();
+            connectWebSocket();
+        }
+
+        // 登录
+        async function login() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim();
+            const inviterCode = document.getElementById('inviterCodeInput').value.trim();
+
+            if (!username) {
+                showNotification('请输入用户标识', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        inviter_code: inviterCode
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    currentUserId = result.user_id;
+                    localStorage.setItem('userId', currentUserId);
+                    localStorage.setItem('loginTime', Date.now().toString());
+                    
+                    showNotification('系统连接成功！欢迎进入AI-NEXUS', 'success');
+                    showMainApp();
+                } else {
+                    showNotification(result.detail || '连接失败', 'error');
+                }
+            } catch (error) {
+                showNotification('网络连接异常，请重试', 'error');
+            }
+        }
+
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('userId');
+            localStorage.removeItem('loginTime');
+            currentUserId = null;
+            if (ws) ws.close();
+            showLoginPage();
+            showNotification('系统已断开连接', 'info');
+        }
+
+        // 连接WebSocket
+        function connectWebSocket() {
+            if (!currentUserId) return;
+
+            ws = new WebSocket(`ws://localhost:8892/ws?user_id=${currentUserId}`);
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+
+            ws.onclose = function() {
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        // 处理WebSocket消息
+        function handleWebSocketMessage(data) {
+            switch(data.type) {
+                case 'ai_log':
+                    addAILog(data);
+                    break;
+                case 'project_ready_for_review':
+                    handleProjectReady(data);
+                    break;
+                case 'balance_update':
+                    updateBalanceDisplay(data.balance);
+                    break;
+            }
+        }
+
+        // 加载用户数据
+        async function loadUserData() {
+            if (!currentUserId) return;
+
+            try {
+                const [statsResponse, invitationResponse] = await Promise.all([
+                    fetch(`/api/user-stats/${currentUserId}`),
+                    fetch(`/api/invitation-stats/${currentUserId}`)
+                ]);
+                
+                if (statsResponse.ok) {
+                    const data = await statsResponse.json();
+                    userStats = data;
+                    
+                    updateBalanceDisplay(data.user.api_balance);
+                    isFirstTimeUser = data.user.total_recharge === 0;
+                    hasUsedFreeTest = data.projects.total > 0;
+                    
+                    updateCostDisplay();
+                    updateDiscountDisplay();
+                }
+                
+                if (invitationResponse.ok) {
+                    const invitationData = await invitationResponse.json();
+                    document.getElementById('invitationCode').textContent = invitationData.invitation_code || '加载中...';
+                    document.getElementById('totalInvitations').textContent = invitationData.total_invitations || 0;
+                    document.getElementById('totalRewards').textContent = invitationData.total_rewards || 0;
+                }
+            } catch (error) {
+                console.error('加载用户数据失败:', error);
+                showNotification('数据加载失败', 'error');
+            }
+        }
+
+        // 更新余额显示
+        function updateBalanceDisplay(balance) {
+            document.getElementById('apiBalance').textContent = balance;
+            document.getElementById('currentBalance').textContent = balance;
+        }
+
+        // 更新费用显示
+        function updateCostDisplay() {
+            const freeTestStatus = document.getElementById('freeTestStatus');
+            if (!hasUsedFreeTest) {
+                freeTestStatus.textContent = '✅ 可用';
+                freeTestStatus.style.color = 'var(--success-glow)';
+                document.getElementById('testBtn').innerHTML = '<i class="fas fa-gift"></i> 免费体验';
+            } else {
+                freeTestStatus.textContent = '❌ 已使用';
+                freeTestStatus.style.color = 'var(--text-secondary)';
+                document.getElementById('testBtn').innerHTML = '<i class="fas fa-flask"></i> 快速验证';
+            }
+        }
+
+        // 更新折扣显示
+        function updateDiscountDisplay() {
+            if (isFirstTimeUser) {
+                document.getElementById('discountBanner').classList.remove('hidden');
+                generateRechargeOptions(true);
+            } else {
+                generateRechargeOptions(false);
+            }
+        }
+
+        // 生成充值选项
+        function generateRechargeOptions(showDiscount = false) {
+            const plans = [
+                { id: 'basic', name: '基础能量包', price: 50, quota: 100, desc: '小型项目测试专用' },
+                { id: 'pro', name: '专业能量包', price: 120, quota: 300, desc: '中型项目开发首选' },
+                { id: 'enterprise', name: '企业能量包', price: 200, quota: 800, desc: '大型项目团队必备' }
+            ];
+
+            const container = document.getElementById('rechargePlans');
+            container.innerHTML = '';
+
+            plans.forEach(plan => {
+                const actualPrice = showDiscount ? plan.price * 0.5 : plan.price;
+                const planElement = document.createElement('div');
+                planElement.className = 'glass';
+                planElement.style.cssText = `
+                    padding: 25px;
+                    margin: 15px 0;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(0,245,255,0.3);
+                    position: relative;
+                `;
+                
+                planElement.innerHTML = `
+                    ${showDiscount ? '<div style="position: absolute; top: -10px; right: -10px; background: var(--secondary-glow); color: white; padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: bold;">半价</div>' : ''}
+                    <h4 style="color: var(--text-accent); margin-bottom: 10px; font-family: 'Orbitron', monospace;">${plan.name}</h4>
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--primary-glow); margin: 15px 0;">
+                        ${showDiscount ? `<span style="text-decoration: line-through; opacity: 0.6; font-size: 1.2rem;">￥${plan.price}</span><br>` : ''}
+                        ￥${actualPrice}
+                    </div>
+                    <p style="color: var(--success-glow); font-size: 1.1rem; margin: 10px 0;">${plan.quota} API配额</p>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">${plan.desc}</p>
+                `;
+                
+                planElement.onclick = () => selectPlan(plan.id, plan.price, plan.quota);
+                container.appendChild(planElement);
+            });
+        }
+
+        // 初始化充值选项
+        function initializeRechargeOptions() {
+            generateRechargeOptions(false);
+        }
+
+        // 切换区域
+        function switchSection(sectionName) {
+            // 更新导航状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 更新内容区域
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionName).classList.add('active');
+            
+            // 特殊处理
+            if (sectionName === 'projects') {
+                loadProjectsList();
+            } else if (sectionName === 'vip') {
+                loadVipInfo();
+            } else if (sectionName === 'blockchain') {
+                loadBlockchainData();
+            } else if (sectionName === 'analytics') {
+                loadAnalyticsData();
+            }
+        }
+
+        // 启动AI开发
+        async function startAIDevelopment(testMode) {
+            const requirement = document.getElementById('requirementInput').value.trim();
+            
+            if (!requirement) {
+                showNotification('请输入项目需求描述', 'error');
+                return;
+            }
+
+            // 检查配额
+            const requiredQuota = testMode ? (hasUsedFreeTest ? 1 : 0) : 50; // 升级配额要求
+            const currentBalance = parseInt(document.getElementById('apiBalance').textContent);
+            
+            if (requiredQuota > 0 && currentBalance < requiredQuota) {
+                showNotification(`配额不足！需要${requiredQuota}个配额，请先充值`, 'error');
+                switchSection('recharge');
+                return;
+            }
+
+            const testBtn = document.getElementById('testBtn');
+            const fullBtn = document.getElementById('fullBtn');
+            
+            // 禁用两个按钮，改变颜色
+            testBtn.disabled = true;
+            fullBtn.disabled = true;
+            testBtn.style.opacity = '0.5';
+            fullBtn.style.opacity = '0.5';
+            testBtn.style.cursor = 'not-allowed';
+            fullBtn.style.cursor = 'not-allowed';
+            
+            const activeButton = testMode ? testBtn : fullBtn;
+            const originalText = activeButton.innerHTML;
+            activeButton.innerHTML = '<span class="loading-spinner"></span> AI协作开发中...';
+            activeButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a52)';
+
+            try {
+                const response = await fetch('/api/start-integrated-ai-development', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        requirement: requirement,
+                        test_mode: testMode
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    currentProject = { id: result.project_id };
+                    showNotification('🚀 AI协作开发已启动！', 'success');
+                    
+                    // 启动完整的开发流程模拟
+                    await simulateFullDevelopmentProcess(testMode);
+                    
+                    if (testMode && !hasUsedFreeTest) {
+                        hasUsedFreeTest = true;
+                        updateCostDisplay();
+                    }
+                    
+                    loadUserData();
+                } else {
+                    throw new Error(result.detail || 'AI开发启动失败');
+                }
+            } catch (error) {
+                showNotification(error.message, 'error');
+                // 恢复按钮状态
+                testBtn.disabled = false;
+                fullBtn.disabled = false;
+                testBtn.style.opacity = '1';
+                fullBtn.style.opacity = '1';
+                testBtn.style.cursor = 'pointer';
+                fullBtn.style.cursor = 'pointer';
+                activeButton.innerHTML = originalText;
+                activeButton.style.background = '';
+            }
+        }
+
+        // 模拟完整开发流程
+        async function simulateFullDevelopmentProcess(testMode) {
+            const stages = [
+                { progress: 10, message: '🤖 多重AI系统初始化中...', duration: 2000 },
+                { progress: 20, message: '📋 文档AI正在分析需求...', duration: 3000 },
+                { progress: 35, message: '📝 生成详细项目文档...', duration: 2500 },
+                { progress: 50, message: '💾 文档生成完成，等待用户确认...', duration: 1000, needsConfirmation: true },
+            ];
+            
+            // 如果是测试模式，缩短时间
+            if (testMode) {
+                stages.forEach(stage => stage.duration = Math.max(500, stage.duration / 3));
+            }
+
+            for (const stage of stages) {
+                updateProgress(stage.progress, stage.message);
+                await new Promise(resolve => setTimeout(resolve, stage.duration));
+                
+                if (stage.needsConfirmation) {
+                    // 显示文档确认阶段
+                    showDocumentReadyNotification();
+                    break; // 等待用户确认文档
+                }
+            }
+        }
+
+        // 继续开发流程（文档确认后）
+        async function continueAfterDocumentConfirmation() {
+            const stages = [
+                { progress: 60, message: '⚡ 开发AI开始代码生成...', duration: 4000 },
+                { progress: 75, message: '🔧 生成前端界面代码...', duration: 3000 },
+                { progress: 85, message: '🖥️ 前端界面生成完成，等待用户确认...', duration: 1000, needsConfirmation: true },
+            ];
+
+            for (const stage of stages) {
+                updateProgress(stage.progress, stage.message);
+                await new Promise(resolve => setTimeout(resolve, stage.duration));
+                
+                if (stage.needsConfirmation) {
+                    showFrontendReadyNotification();
+                    break; // 等待用户确认前端
+                }
+            }
+        }
+
+        // 完成开发流程（前端确认后）
+        async function finalizeDevelopment() {
+            const stages = [
+                { progress: 95, message: '🔍 监督AI质量检查中...', duration: 2000 },
+                { progress: 98, message: '🧪 测试AI验证功能...', duration: 1500 },
+                { progress: 100, message: '🎉 AI协作开发完成！项目已准备部署', duration: 1000 }
+            ];
+
+            for (const stage of stages) {
+                updateProgress(stage.progress, stage.message);
+                await new Promise(resolve => setTimeout(resolve, stage.duration));
+            }
+
+            // 开发完成，恢复按钮但保持禁用状态
+            const testBtn = document.getElementById('testBtn');
+            const fullBtn = document.getElementById('fullBtn');
+            
+            testBtn.innerHTML = '<i class="fas fa-check"></i> 开发完成';
+            fullBtn.innerHTML = '<i class="fas fa-check"></i> 开发完成';
+            testBtn.style.background = 'linear-gradient(135deg, #00ff88, #00d4aa)';
+            fullBtn.style.background = 'linear-gradient(135deg, #00ff88, #00d4aa)';
+            
+            showNotification('🎉 AI协作开发完成！请查看项目管理页面', 'success');
+            loadProjectsList();
+        }
+
+        // 显示文档就绪通知
+        function showDocumentReadyNotification() {
+            const notification = document.createElement('div');
+            notification.className = 'notification success';
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                padding: 30px;
+                background: rgba(0, 255, 136, 0.15);
+                border: 2px solid var(--success-glow);
+                border-radius: 20px;
+                backdrop-filter: blur(20px);
+                z-index: 1001;
+                text-align: center;
+                min-width: 400px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            `;
+            
+            notification.innerHTML = `
+                <h3 style="color: var(--success-glow); margin-bottom: 15px;">
+                    <i class="fas fa-file-alt"></i> 项目文档已生成
+                </h3>
+                <p style="margin-bottom: 20px; line-height: 1.6;">
+                    AI已完成项目需求分析并生成详细文档。<br>
+                    请查看文档内容并确认是否符合您的要求。
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button class="btn btn-primary" onclick="viewDocumentInteractive(currentProject?.id)" style="padding: 10px 20px;">
+                        <i class="fas fa-file-text"></i> 交互式文档
+                    </button>
+                    <button class="btn btn-secondary" onclick="dismissNotification(this.closest('.notification'))" style="padding: 10px 20px;">
+                        <i class="fas fa-times"></i> 稍后查看
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+        }
+
+        // 显示前端就绪通知
+        function showFrontendReadyNotification() {
+            const notification = document.createElement('div');
+            notification.className = 'notification success';
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                padding: 30px;
+                background: rgba(0, 255, 136, 0.15);
+                border: 2px solid var(--success-glow);
+                border-radius: 20px;
+                backdrop-filter: blur(20px);
+                z-index: 1001;
+                text-align: center;
+                min-width: 400px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            `;
+            
+            notification.innerHTML = `
+                <h3 style="color: var(--success-glow); margin-bottom: 15px;">
+                    <i class="fas fa-palette"></i> 前端界面已生成
+                </h3>
+                <p style="margin-bottom: 20px; line-height: 1.6;">
+                    AI已完成前端界面设计和代码生成。<br>
+                    请预览界面效果并确认是否满意。
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button class="btn btn-primary" onclick="viewFrontend()" style="padding: 10px 20px;">
+                        <i class="fas fa-eye"></i> 预览界面
+                    </button>
+                    <button class="btn btn-secondary" onclick="dismissNotification(this.closest('.notification'))" style="padding: 10px 20px;">
+                        <i class="fas fa-times"></i> 稍后查看
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+        }
+
+        // 查看文档
+        function viewDocument() {
+            if (currentProject && currentProject.id) {
+                openDocumentViewer(currentProject.id);
+            }
+            dismissNotification(document.querySelector('.notification'));
+        }
+
+        // 交互式文档编辑
+        function viewDocumentInteractive(projectId) {
+            const url = `/static/interactive_document_viewer.html?project_id=${projectId}&user_id=${currentUserId}`;
+            window.open(url, '_blank', 'width=1400,height=900,scrollbars=yes,resizable=yes');
+        }
+
+        // 查看前端
+        function viewFrontend() {
+            if (currentProject && currentProject.id) {
+                openFrontendEditor(currentProject.id);
+            }
+            dismissNotification(document.querySelector('.notification'));
+        }
+
+        // 可视化前端编辑
+        function editFrontendInteractive(projectId) {
+            const url = `/static/interactive_frontend_editor.html?project_id=${projectId}&user_id=${currentUserId}`;
+            window.open(url, '_blank', 'width=1600,height=1000,scrollbars=yes,resizable=yes');
+        }
+
+        // 关闭通知
+        function dismissNotification(notification) {
+            if (notification) {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translate(-50%, -50%) scale(0.9)';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }
+
+        // 更新进度
+        function updateProgress(percentage, text) {
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+
+        // 添加AI日志
+        function addAILog(data) {
+            const logsContainer = document.getElementById('aiLogs');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            
+            const statusIcon = getStatusIcon(data.action);
+            logEntry.innerHTML = `
+                <strong>[${data.ai_name}]</strong> ${statusIcon} ${data.action}: ${data.message}
+                <div class="log-timestamp">${new Date(data.timestamp).toLocaleTimeString()}</div>
+            `;
+            
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+
+            const progressMap = {
+                '需求分析': 20,
+                '代码生成': 60,
+                '代码生成完成': 90,
+                '项目完成': 100
+            };
+            
+            const progress = progressMap[data.action] || 0;
+            if (progress > 0) {
+                updateProgress(progress, data.message);
+            }
+        }
+
+        // 获取状态图标
+        function getStatusIcon(action) {
+            const iconMap = {
+                '需求分析': '🧠',
+                '代码生成': '⚡',
+                '代码生成完成': '✅',
+                '质量检查': '🔍',
+                '测试验证': '🧪',
+                '项目完成': '🎉'
+            };
+            return iconMap[action] || '🤖';
+        }
+
+        // 处理项目就绪
+        function handleProjectReady(data) {
+            currentProject = data.project;
+            updateProgress(100, '🎉 项目生成完成！请查看文档和界面');
+            showNotification('项目已生成完成！请进行文档和界面确认', 'success');
+            loadProjectsList();
+        }
+
+        // 加载项目列表
+        async function loadProjectsList() {
+            if (!currentUserId) return;
+
+            try {
+                const response = await fetch(`/api/user-projects/${currentUserId}`);
+                if (response.ok) {
+                    const projects = await response.json();
+                    renderProjectsList(projects);
+                }
+            } catch (error) {
+                console.error('加载项目列表失败:', error);
+            }
+        }
+
+        // 渲染项目列表
+        function renderProjectsList(projects) {
+            const container = document.getElementById('projectsList');
+            
+            if (!projects || projects.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: var(--text-secondary);">
+                        <i class="fas fa-folder-open" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;"></i>
+                        <h3>暂无项目</h3>
+                        <p style="margin-top: 15px;">开始您的第一个AI开发项目吧！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = projects.map(project => {
+                const canViewDocument = project.document_content && !project.document_confirmed;
+                const canEditFrontend = project.frontend_preview_url && !project.frontend_confirmed;
+                const canViewOnly = project.document_confirmed || project.frontend_confirmed;
+                const canDeploy = project.document_confirmed && project.frontend_confirmed && !project.deployment_url;
+                const isCompleted = project.deployment_status === 'deployed';
+
+                return `
+                    <div class="glass" style="padding: 25px; margin: 20px 0; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                            <div>
+                                <h3 style="color: var(--text-accent); margin-bottom: 8px; font-family: 'Orbitron', monospace;">${project.name}</h3>
+                                <p style="color: var(--text-secondary); font-size: 0.9rem;">${project.description || '暂无描述'}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="status-indicator status-${getProjectStatus(project)}"></span>
+                                <span style="font-size: 0.9rem; color: var(--text-secondary);">${getProjectStatusText(project)}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                            <div style="text-align: center;">
+                                <div style="color: var(--text-secondary); font-size: 0.8rem;">文档状态</div>
+                                <div style="color: ${project.document_confirmed ? 'var(--success-glow)' : 'var(--warning-glow)'}; font-weight: bold;">
+                                    ${project.document_confirmed ? '✅ 已确认' : '⏳ 待确认'}
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: var(--text-secondary); font-size: 0.8rem;">界面状态</div>
+                                <div style="color: ${project.frontend_confirmed ? 'var(--success-glow)' : 'var(--warning-glow)'}; font-weight: bold;">
+                                    ${project.frontend_confirmed ? '✅ 已确认' : '⏳ 待确认'}
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: var(--text-secondary); font-size: 0.8rem;">部署状态</div>
+                                <div style="color: ${project.deployment_status === 'deployed' ? 'var(--success-glow)' : 'var(--text-secondary)'}; font-weight: bold;">
+                                    ${project.deployment_status === 'deployed' ? '🚀 已部署' : '💤 未部署'}
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: var(--text-secondary); font-size: 0.8rem;">配额消耗</div>
+                                <div style="color: var(--primary-glow); font-weight: bold;">
+                                    ${getProjectCost(project)} 配额
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+                            ${canViewDocument ? `
+                                <button class="btn" onclick="openDocumentViewer('${project.id}')" style="background: var(--warning-glow); color: var(--bg-dark);">
+                                    <i class="fas fa-file-alt"></i> 确认文档
+                                </button>
+                            ` : ''}
+                            
+                            ${canEditFrontend ? `
+                                <button class="btn" onclick="openFrontendEditor('${project.id}')" style="background: var(--accent-glow); color: var(--bg-dark);">
+                                    <i class="fas fa-palette"></i> 确认界面
+                                </button>
+                            ` : ''}
+                            
+                            ${canViewOnly && project.document_confirmed ? `
+                                <button class="btn" onclick="openDocumentViewer('${project.id}')" style="background: var(--text-secondary); color: var(--bg-dark);" disabled>
+                                    <i class="fas fa-eye"></i> 查看文档
+                                </button>
+                            ` : ''}
+                            
+                            ${canViewOnly && project.frontend_confirmed ? `
+                                <button class="btn" onclick="openFrontendEditor('${project.id}')" style="background: var(--text-secondary); color: var(--bg-dark);" disabled>
+                                    <i class="fas fa-eye"></i> 查看界面
+                                </button>
+                            ` : ''}
+                            
+                            ${canDeploy ? `
+                                <button class="btn" onclick="deployProject('${project.id}')" style="background: var(--success-glow); color: var(--bg-dark);">
+                                    <i class="fas fa-rocket"></i> 立即部署 (20配额)
+                                </button>
+                            ` : ''}
+                            
+                            ${isCompleted && project.deployment_url ? `
+                                <button class="btn" onclick="window.open('${project.deployment_url}', '_blank')" style="background: var(--success-glow); color: var(--bg-dark);">
+                                    <i class="fas fa-external-link-alt"></i> 访问项目
+                                </button>
+                                ${project.blockchain_deployed ? `
+                                    <button class="btn" onclick="viewBlockchainInfo('${project.id}')" style="background: var(--primary-glow); color: var(--bg-dark);">
+                                        <i class="fas fa-link"></i> 已上链
+                                    </button>
+                                ` : `
+                                    <button class="btn" onclick="deployToBlockchain('${project.id}')" style="background: var(--secondary-glow); color: var(--bg-dark);">
+                                        <i class="fas fa-link"></i> 一键上链 (${checkVipBenefits('blockchain') ? '免费' : '30配额'})
+                                    </button>
+                                `}
+                            ` : ''}
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; color: var(--text-secondary);">
+                            创建时间: ${new Date(project.created_at).toLocaleString()}
+                            ${project.deployed_at ? `<br>部署时间: ${new Date(project.deployed_at).toLocaleString()}` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 获取项目消耗配额
+        function getProjectCost(project) {
+            let cost = 50; // 基础开发成本
+            if (project.deployment_status === 'deployed') cost += 20; // 部署成本
+            if (project.blockchain_deployed) cost += 30; // 上链成本
+            return cost;
+        }
+
+        // 部署项目
+        async function deployProject(projectId) {
+            const currentBalance = parseInt(document.getElementById('apiBalance').textContent);
+            if (currentBalance < 20) {
+                showNotification('配额不足！部署需要20个配额，请先充值', 'error');
+                switchSection('recharge');
+                return;
+            }
+
+            if (!confirm('确定要部署此项目吗？将消耗20个API配额。')) {
+                return;
+            }
+
+            try {
+                showNotification('🚀 项目部署中...', 'info');
+                
+                const response = await fetch('/api/deploy-project', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: projectId,
+                        user_id: currentUserId
+                    })
+                });
+
+                if (response.ok) {
+                    showNotification('🎉 项目部署成功！', 'success');
+                    loadProjectsList();
+                    loadUserData();
+                } else {
+                    const error = await response.json();
+                    showNotification(`部署失败：${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showNotification('部署异常，请重试', 'error');
+            }
+        }
+
+        // 一键上链
+        async function deployToBlockchain(projectId) {
+            const currentBalance = parseInt(document.getElementById('apiBalance').textContent);
+            if (currentBalance < 30) {
+                showNotification('配额不足！上链需要30个配额，请先充值', 'error');
+                switchSection('recharge');
+                return;
+            }
+
+            if (!confirm('确定要将此项目上链吗？将消耗30个API配额。')) {
+                return;
+            }
+
+            try {
+                showNotification('⛓️ 项目上链中...', 'info');
+                
+                const response = await fetch('/api/deploy-blockchain', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: projectId,
+                        user_id: currentUserId
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showNotification(`🎉 项目成功上链！链上地址：${result.blockchain_address}`, 'success');
+                    loadProjectsList();
+                    loadUserData();
+                } else {
+                    const error = await response.json();
+                    showNotification(`上链失败：${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showNotification('上链异常，请重试', 'error');
+            }
+        }
+
+        // 获取项目状态
+        function getProjectStatus(project) {
+            if (project.deployment_status === 'deployed') return 'completed';
+            if (project.document_confirmed && project.frontend_confirmed) return 'processing';
+            return 'pending';
+        }
+
+        // 获取项目状态文本
+        function getProjectStatusText(project) {
+            if (project.deployment_status === 'deployed') return '已完成';
+            if (project.document_confirmed && project.frontend_confirmed) return '准备部署';
+            return '开发中';
+        }
+
+        // 选择套餐
+        function selectPlan(planType, price, quota) {
+            document.querySelectorAll('#rechargePlans .glass').forEach(card => {
+                card.style.borderColor = 'rgba(0,245,255,0.3)';
+                card.style.transform = 'scale(1)';
+            });
+            
+            event.target.closest('.glass').style.borderColor = 'var(--primary-glow)';
+            event.target.closest('.glass').style.transform = 'scale(1.05)';
+            
+            selectedPlan = { type: planType, price: price, quota: quota };
+            
+            const actualPrice = isFirstTimeUser ? price * 0.5 : price;
+            document.getElementById('selectedPlanInfo').classList.remove('hidden');
+            document.getElementById('planDetails').innerHTML = `
+                <div style="font-size: 1.1rem; margin-bottom: 10px;">${planType}能量包 - ${quota}个API配额</div>
+                ${isFirstTimeUser ? 
+                    `<div style="color: var(--warning-glow);">原价：￥${price} → <span style="color: var(--success-glow); font-weight: bold;">优惠价：￥${actualPrice}</span> (首充半价)</div>` : 
+                    `<div>价格：￥${price}</div>`
+                }
+            `;
+            
+            document.getElementById('paymentMethods').classList.remove('hidden');
+        }
+
+        // 处理支付
+        async function processPayment(method) {
+            if (!selectedPlan) return;
+            
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<span class="loading-spinner"></span> 处理中...';
+
+            try {
+                const response = await fetch('/api/recharge', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        amount: selectedPlan.price,
+                        api_quota: selectedPlan.quota,
+                        payment_method: method
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    // 打开真实支付页面
+                    const paymentUrl = `/payment/demo?order_id=${result.order_id}&amount=${result.final_amount}&method=${method}`;
+                    const paymentWindow = window.open(paymentUrl, 'payment', 'width=700,height=800,scrollbars=yes,resizable=yes');
+                    
+                    if (paymentWindow) {
+                        showNotification('💳 支付窗口已打开，请完成支付', 'info');
+                        
+                        // 监听支付窗口关闭
+                        const checkClosed = setInterval(() => {
+                            if (paymentWindow.closed) {
+                                clearInterval(checkClosed);
+                                loadUserData(); // 刷新用户数据
+                                showNotification('支付窗口已关闭，如已完成支付请稍等片刻查看余额变化', 'info');
+                                
+                                // 重置选择状态
+                                document.getElementById('selectedPlanInfo').classList.add('hidden');
+                                document.getElementById('paymentMethods').classList.add('hidden');
+                            }
+                        }, 1000);
+                    } else {
+                        showNotification('无法打开支付窗口，请检查浏览器弹窗设置', 'error');
+                    }
+                } else {
+                    showNotification(result.detail || '充值失败，请重试', 'error');
+                }
+            } catch (error) {
+                showNotification('网络异常，请重试', 'error');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
+
+        // 真实分享功能
+        async function shareToWeChat() {
+            await realShareToPlatform('wechat');
+        }
+
+        async function shareToWeibo() {
+            await realShareToPlatform('weibo');
+        }
+
+        async function shareToQQ() {
+            await realShareToPlatform('qq');
+        }
+
+        async function shareToTelegram() {
+            await realShareToPlatform('telegram');
+        }
+
+        async function shareToFacebook() {
+            await realShareToPlatform('facebook');
+        }
+
+        async function shareToTwitter() {
+            await realShareToPlatform('twitter');
+        }
+
+        // 真实的平台分享实现
+        async function realShareToPlatform(platform) {
+            if (!currentUserId) {
+                showNotification('请先登录', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/share', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        platform: platform
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    const shareUrl = result.share_url;
+                    const platformName = result.platform_name;
+                    
+                    if (platform === 'wechat') {
+                        // 微信分享：复制链接到剪贴板
+                        try {
+                            await navigator.clipboard.writeText(shareUrl);
+                            showNotification(`📋 ${platformName}分享链接已复制到剪贴板！${result.message}`, 'success');
+                        } catch (e) {
+                            showNotification(`🔗 分享链接：${shareUrl}`, 'info');
+                        }
+                    } else {
+                        // 其他平台：打开分享窗口
+                        const width = 600;
+                        const height = 400;
+                        const left = (screen.width - width) / 2;
+                        const top = (screen.height - height) / 2;
+                        
+                        const shareWindow = window.open(
+                            shareUrl,
+                            'share',
+                            `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+                        );
+                        
+                        if (shareWindow) {
+                            showNotification(`🚀 ${platformName}分享窗口已打开！${result.message}`, 'success');
+                        } else {
+                            showNotification('无法打开分享窗口，请检查浏览器弹窗设置', 'error');
+                        }
+                    }
+                    
+                    // 刷新用户数据以显示新的奖励
+                    loadUserData();
+                } else {
+                    showNotification(result.message || '分享失败，请重试', 'error');
+                }
+            } catch (error) {
+                showNotification('分享异常，请重试', 'error');
+                console.error('分享错误:', error);
+            }
+        }
+
+        // 保留兼容性的createShare函数
+        async function createShare(shareType, platform) {
+            await realShareToPlatform(platform);
+        }
+
+        // 复制邀请码
+        function copyInvitationCode() {
+            const invitationCode = document.getElementById('invitationCode').textContent;
+            if (invitationCode === '加载中...') {
+                showNotification('邀请码还在加载中', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(invitationCode).then(() => {
+                showNotification('🔑 专属邀请密钥已复制！', 'success');
+            }).catch(() => {
+                showNotification('复制失败，请手动复制', 'error');
+            });
+        }
+
+        // 打开文档查看器 - 跳转到独立页面
+        function openDocumentViewer(projectId = null) {
+            const id = projectId || (currentProject ? currentProject.id : null);
+            if (id) {
+                window.open(`/static/document_viewer.html?project_id=${id}`, '_blank');
+            } else {
+                showNotification('请先完成AI开发流程', 'error');
+            }
+        }
+
+        // 打开前端编辑器 - 跳转到独立页面
+        function openFrontendEditor(projectId = null) {
+            const id = projectId || (currentProject ? currentProject.id : null);
+            if (id) {
+                window.open(`/static/frontend_editor.html?project_id=${id}`, '_blank');
+            } else {
+                showNotification('请先完成AI开发流程', 'error');
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // VIP相关功能
+        async function loadVipInfo() {
+            if (!currentUserId) return;
+            
+            try {
+                const response = await fetch(`/api/vip-info/${currentUserId}`);
+                if (response.ok) {
+                    const vipInfo = await response.json();
+                    userVipInfo = vipInfo;
+                    updateVipDisplay(vipInfo);
+                }
+            } catch (error) {
+                console.error('加载VIP信息失败:', error);
+            }
+        }
+
+        function updateVipDisplay(vipInfo) {
+            const levelNames = ["常规会员", "高级会员", "至尊会员"];
+            const levelColors = ["var(--text-secondary)", "#FFD700", "#8A2BE2"];
+            const levelIcons = ["fa-user", "fa-crown", "fa-gem"];
+
+            document.getElementById('currentVipLevel').textContent = levelNames[vipInfo.level];
+            document.getElementById('currentVipLevel').style.color = levelColors[vipInfo.level];
+
+            const expireText = vipInfo.level > 0 && vipInfo.expires_at ? 
+                `到期时间：${new Date(vipInfo.expires_at).toLocaleDateString()}` : 
+                levelNames[vipInfo.level] === "常规会员" ? "享受基础AI开发服务" : "永久有效";
+            document.getElementById('vipExpires').textContent = expireText;
+
+            // 更新VIP徽章
+            const badge = document.getElementById('vipBadge').querySelector('div');
+            badge.style.background = vipInfo.level > 0 ? 
+                `linear-gradient(135deg, ${levelColors[vipInfo.level]}, ${levelColors[vipInfo.level]}80)` : 
+                'var(--text-secondary)';
+            badge.innerHTML = `<i class="fas ${levelIcons[vipInfo.level]}"></i>`;
+
+            // 更新权益显示
+            updateVipBenefits(vipInfo);
+        }
+
+        function updateVipBenefits(vipInfo) {
+            const benefitsContainer = document.getElementById('vipBenefits');
+            const benefits = vipInfo.benefits || [];
+
+            benefitsContainer.innerHTML = benefits.map(benefit => `
+                <div style="padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; text-align: center;">
+                    <i class="fas fa-check" style="color: var(--success-glow); margin-bottom: 8px;"></i>
+                    <div style="font-size: 0.9rem;">${benefit}</div>
+                </div>
+            `).join('');
+
+            if (benefits.length === 0) {
+                benefitsContainer.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary); padding: 20px;">
+                        <i class="fas fa-info-circle" style="margin-bottom: 10px;"></i>
+                        <p>升级VIP解锁更多特权</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function upgradeVIP(level) {
+            const levelNames = ["", "高级会员", "至尊会员"];
+            const prices = [0, 100, 1000];
+
+            if (!confirm(`确定要升级到${levelNames[level]}吗？费用：￥${prices[level]}/月`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/vip-upgrade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        vip_level: level,
+                        payment_amount: prices[level]
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showNotification(`🎉 成功升级到${levelNames[level]}！赠送${result.credits_granted}配额`, 'success');
+                    loadVipInfo();
+                    loadUserData();
+                } else {
+                    const error = await response.json();
+                    showNotification(`升级失败：${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showNotification('网络异常，请重试', 'error');
+            }
+        }
+
+        // 检查VIP权益
+        function checkVipBenefits(action) {
+            switch(action) {
+                case 'deploy':
+                    return userVipInfo.level >= 1; // 高级会员免费部署
+                case 'blockchain':
+                    return userVipInfo.level >= 1; // 高级会员免费上链
+                case 'half_price':
+                    return userVipInfo.level >= 2; // 至尊会员半价
+                default:
+                    return false;
+            }
+        }
+
+        // 应用VIP定价
+        function applyVipPricing(basePrice, action) {
+            if (checkVipBenefits(action)) {
+                return 0; // 免费
+            }
+            if (checkVipBenefits('half_price')) {
+                return Math.ceil(basePrice / 2); // 半价
+            }
+            return basePrice;
+        }
+
+        // 区块链相关功能
+        async function loadBlockchainData() {
+            if (!currentUserId) return;
+            
+            try {
+                // 加载区块链记录
+                const recordsResponse = await fetch(`/api/blockchain/records/${currentUserId}`);
+                if (recordsResponse.ok) {
+                    const recordsData = await recordsResponse.json();
+                    renderBlockchainRecords(recordsData.records);
+                }
+
+                // 加载智能合约
+                const contractsResponse = await fetch(`/api/blockchain/contracts/${currentUserId}`);
+                if (contractsResponse.ok) {
+                    const contractsData = await contractsResponse.json();
+                    renderSmartContracts(contractsData.contracts);
+                }
+
+                // 加载统计信息
+                const statsResponse = await fetch('/api/blockchain/statistics');
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
+                    updateBlockchainStats(stats);
+                }
+            } catch (error) {
+                console.error('加载区块链数据失败:', error);
+            }
+        }
+
+        function updateBlockchainStats(stats) {
+            const projectCount = stats.records_by_type?.project || 0;
+            const contractCount = Object.keys(stats.records_by_type || {}).length;
+            const gasUsed = stats.total_gas_used || 0;
+
+            document.getElementById('blockchainProjectCount').textContent = projectCount;
+            document.getElementById('smartContractCount').textContent = contractCount;
+            document.getElementById('totalGasUsed').textContent = gasUsed.toLocaleString();
+        }
+
+        function renderBlockchainRecords(records) {
+            const container = document.getElementById('blockchainRecords');
+            
+            if (!records || records.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: var(--text-secondary); padding: 60px 20px;">
+                        <i class="fas fa-cube" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>暂无区块链记录</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = records.map(record => `
+                <div class="glass" style="padding: 20px; margin: 15px 0; transition: all 0.3s ease;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                        <div>
+                            <h4 style="color: var(--text-accent); margin-bottom: 5px;">
+                                <i class="fas fa-${getRecordIcon(record.record_type)}"></i>
+                                ${getRecordTypeName(record.record_type)}
+                            </h4>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                                ${new Date(record.created_at).toLocaleString()}
+                            </p>
+                        </div>
+                        <span class="status-indicator status-completed"></span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 10px; font-size: 0.9rem;">
+                        <div>
+                            <div style="color: var(--text-secondary);">区块链地址</div>
+                            <div style="color: var(--primary-glow); font-family: monospace; word-break: break-all;">
+                                ${record.blockchain_address.substring(0, 20)}...
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-secondary);">网络</div>
+                            <div style="color: var(--accent-glow); text-transform: capitalize;">
+                                ${record.network || 'Polygon'}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-secondary);">Gas消耗</div>
+                            <div style="color: var(--warning-glow);">
+                                ${record.gas_used?.toLocaleString() || 'N/A'}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-secondary);">区块高度</div>
+                            <div style="color: var(--success-glow);">
+                                #${record.block_number?.toLocaleString() || 'N/A'}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn" onclick="verifyBlockchainRecord('${record.record_id}')" style="background: var(--primary-glow); color: var(--bg-dark);">
+                            <i class="fas fa-check-circle"></i> 验证
+                        </button>
+                        <button class="btn" onclick="window.open('https://polygonscan.com/tx/${record.transaction_hash}', '_blank')" style="background: var(--accent-glow); color: var(--bg-dark);">
+                            <i class="fas fa-external-link-alt"></i> 浏览器查看
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderSmartContracts(contracts) {
+            const container = document.getElementById('smartContracts');
+            
+            if (!contracts || contracts.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: var(--text-secondary); padding: 60px 20px;">
+                        <i class="fas fa-file-contract" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>暂无智能合约</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = contracts.map(contract => `
+                <div class="glass" style="padding: 20px; margin: 15px 0;">
+                    <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 15px;">
+                        <div>
+                            <h4 style="color: var(--text-accent); margin-bottom: 5px;">
+                                <i class="fas fa-file-contract"></i>
+                                ${getContractTypeName(contract.contract_type)}
+                            </h4>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                                部署时间: ${new Date(contract.deployed_at).toLocaleString()}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                        <div style="color: var(--text-secondary); margin-bottom: 5px;">合约地址</div>
+                        <div style="color: var(--primary-glow); font-family: monospace; word-break: break-all; font-size: 0.9rem;">
+                            ${contract.contract_address}
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="window.open('https://polygonscan.com/address/${contract.contract_address}', '_blank')" style="background: var(--success-glow); color: var(--bg-dark);">
+                        <i class="fas fa-external-link-alt"></i> 查看合约
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function getRecordIcon(type) {
+            const icons = {
+                'project': 'project-diagram',
+                'user_profile': 'user',
+                'vip_status': 'crown',
+                'transaction': 'exchange-alt'
+            };
+            return icons[type] || 'cube';
+        }
+
+        function getRecordTypeName(type) {
+            const names = {
+                'project': '项目上链',
+                'user_profile': '用户档案',
+                'vip_status': 'VIP状态',
+                'transaction': '交易记录'
+            };
+            return names[type] || '未知类型';
+        }
+
+        function getContractTypeName(type) {
+            const names = {
+                'user_registry': '用户注册合约',
+                'project_registry': '项目注册合约',
+                'vip_contract': 'VIP会员合约'
+            };
+            return names[type] || '智能合约';
+        }
+
+        // 部署用户档案到区块链
+        async function deployUserProfileToBlockchain() {
+            const currentBalance = parseInt(document.getElementById('apiBalance').textContent);
+            if (currentBalance < 15) {
+                showNotification('配额不足！用户档案上链需要15个配额', 'error');
+                switchSection('recharge');
+                return;
+            }
+
+            if (!confirm('确定要将用户档案部署到区块链吗？将消耗15个API配额。')) {
+                return;
+            }
+
+            try {
+                showNotification('📋 用户档案上链中...', 'info');
+                
+                const response = await fetch('/api/blockchain/deploy-user-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        network: 'polygon'
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showNotification(`🎉 用户档案成功上链！地址：${result.blockchain_address.substring(0, 20)}...`, 'success');
+                    loadBlockchainData();
+                    loadUserData();
+                } else {
+                    const error = await response.json();
+                    showNotification(`上链失败：${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showNotification('上链异常，请重试', 'error');
+            }
+        }
+
+        // 部署VIP合约到区块链
+        async function deployVipContractToBlockchain() {
+            const currentBalance = parseInt(document.getElementById('apiBalance').textContent);
+            if (currentBalance < 25) {
+                showNotification('配额不足！VIP合约部署需要25个配额', 'error');
+                switchSection('recharge');
+                return;
+            }
+
+            if (!confirm('确定要将VIP状态部署为智能合约吗？将消耗25个API配额。')) {
+                return;
+            }
+
+            try {
+                showNotification('👑 VIP合约部署中...', 'info');
+                
+                const response = await fetch('/api/blockchain/deploy-vip-contract', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        network: 'ethereum'
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showNotification(`🎉 VIP合约部署成功！地址：${result.contract_address.substring(0, 20)}...`, 'success');
+                    loadBlockchainData();
+                    loadUserData();
+                } else {
+                    const error = await response.json();
+                    showNotification(`部署失败：${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showNotification('部署异常，请重试', 'error');
+            }
+        }
+
+        // 创建区块链身份
+        async function createBlockchainIdentity() {
+            showNotification('🔑 正在创建区块链身份...', 'info');
+            
+            // 模拟创建过程
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            const mockAddress = `0x${Array(5).fill(0).map(() => Math.random().toString(16).substr(2, 8)).join('')}`;
+            showNotification(`🎉 区块链身份创建成功！地址：${mockAddress.substring(0, 20)}...`, 'success');
+        }
+
+        // 验证区块链记录
+        async function verifyBlockchainRecord(recordId) {
+            try {
+                showNotification('🔍 验证区块链记录中...', 'info');
+                
+                const response = await fetch(`/api/blockchain/verify/${recordId}`);
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.verified) {
+                        showNotification(`✅ 记录验证成功！确认数：${result.confirmations}`, 'success');
+                    } else {
+                        showNotification(`❌ 记录验证失败：${result.error}`, 'error');
+                    }
+                } else {
+                    showNotification('验证失败，请重试', 'error');
+                }
+            } catch (error) {
+                showNotification('验证异常，请重试', 'error');
+            }
+        }
+
+        // 查看项目区块链信息
+        function viewBlockchainInfo(projectId) {
+            // 打开区块链信息模态框或跳转到详情页
+            showNotification('🔗 查看项目链上信息...', 'info');
+            switchSection('blockchain');
+        }
+
+        // 真实区块链功能
+        function getSelectedNetwork() {
+            const selected = document.querySelector('input[name="blockchain_network"]:checked');
+            return selected ? selected.value : 'solana-devnet';
+        }
+
+        // 创建真实区块链钱包
+        async function createRealBlockchainWallet() {
+            if (!currentUserId) {
+                showNotification('请先登录', 'error');
+                return;
+            }
+
+            const network = getSelectedNetwork();
+            
+            try {
+                showNotification('🔑 正在创建真实区块链钱包...', 'info');
+                
+                const response = await fetch('/api/blockchain/create-wallet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        network: network
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showNotification(`🎉 ${network}钱包创建成功！地址：${result.wallet.address.substring(0, 20)}...`, 'success');
+                    
+                    // 显示钱包信息
+                    showWalletInfo(result.wallet);
+                    loadBlockchainData();
+                } else {
+                    const error = await response.json();
+                    showNotification(`钱包创建失败：${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showNotification('钱包创建异常，请重试', 'error');
+            }
+        }
+
+        // 将用户档案真实上链
+        async function deployUserProfileToRealBlockchain() {
+            if (!currentUserId) {
+                showNotification('请先登录', 'error');
+                return;
+            }
+
+            const currentBalance = parseInt(document.getElementById('apiBalance').textContent);
+            if (currentBalance < 15) {
+                showNotification('配额不足！用户档案真实上链需要15个配额', 'error');
+                switchSection('recharge');
+                return;
+            }
+
+            if (!confirm('确定要将用户档案真实部署到区块链吗？这将永久存储您的数据，消耗15个API配额。')) {
+                return;
+            }
+
+            const network = getSelectedNetwork();
+
+            try {
+                showNotification('📋 用户档案真实上链中...', 'info');
+                
+                const response = await fetch('/api/blockchain/deploy-user-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        network: network
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showNotification(`🎉 用户档案成功上链！交易哈希：${result.transaction_hash.substring(0, 20)}...`, 'success');
+                    
+                    // 显示上链详情
+                    showBlockchainDeploymentInfo(result);
+                    loadBlockchainData();
+                    loadUserData();
+                } else {
+                    const error = await response.json();
+                    showNotification(`上链失败：${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showNotification('上链异常，请重试', 'error');
+            }
+        }
+
+        // 显示钱包详情
+        async function showWalletDetails() {
+            if (!currentUserId) {
+                showNotification('请先登录', 'error');
+                return;
+            }
+
+            try {
+                showNotification('🔍 查询钱包信息...', 'info');
+                
+                const response = await fetch(`/api/blockchain/wallet/${currentUserId}`);
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    if (result.wallets && result.wallets.length > 0) {
+                        showWalletModal(result.wallets);
+                    } else {
+                        showNotification('未找到钱包，请先创建钱包', 'warning');
+                    }
+                } else {
+                    const error = await response.json();
+                    showNotification(`查询失败：${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showNotification('查询异常，请重试', 'error');
+            }
+        }
+
+        // 显示钱包信息弹窗
+        function showWalletInfo(wallet) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); display: flex; align-items: center; 
+                justify-content: center; z-index: 10000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: var(--bg-dark); padding: 30px; border-radius: 15px; 
+                    max-width: 500px; width: 90%; border: 1px solid var(--primary-glow);
+                    box-shadow: 0 0 30px var(--primary-glow);
+                ">
+                    <h3 style="color: var(--text-accent); margin-bottom: 20px; text-align: center;">
+                        <i class="fas fa-wallet"></i> 钱包创建成功
+                    </h3>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <div style="color: var(--text-secondary); margin-bottom: 5px;">网络</div>
+                        <div style="color: var(--primary-glow); font-weight: bold;">${wallet.network}</div>
+                    </div>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <div style="color: var(--text-secondary); margin-bottom: 5px;">地址</div>
+                        <div style="color: var(--success-glow); font-family: monospace; word-break: break-all; font-size: 0.9rem;">
+                            ${wallet.address}
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <div style="color: var(--text-secondary); margin-bottom: 5px;">余额</div>
+                        <div style="color: var(--accent-glow); font-weight: bold;">${wallet.balance || 0} ${wallet.network.startsWith('solana') ? 'SOL' : 'ETH'}</div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                style="background: var(--primary-glow); color: var(--bg-dark); 
+                                       border: none; padding: 10px 30px; border-radius: 25px; cursor: pointer;">
+                            确定
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 点击背景关闭
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        // 显示钱包详情弹窗
+        function showWalletModal(wallets) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); display: flex; align-items: center; 
+                justify-content: center; z-index: 10000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: var(--bg-dark); padding: 30px; border-radius: 15px; 
+                    max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
+                    border: 1px solid var(--primary-glow); box-shadow: 0 0 30px var(--primary-glow);
+                ">
+                    <h3 style="color: var(--text-accent); margin-bottom: 20px; text-align: center;">
+                        <i class="fas fa-wallet"></i> 我的区块链钱包
+                    </h3>
+                    
+                    ${wallets.map(wallet => `
+                        <div style="margin: 20px 0; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px; border-left: 4px solid var(--primary-glow);">
+                            <h4 style="color: var(--success-glow); margin-bottom: 15px;">${wallet.network}</h4>
+                            
+                            <div style="margin: 10px 0;">
+                                <div style="color: var(--text-secondary); font-size: 0.9rem;">地址</div>
+                                <div style="color: var(--text-accent); font-family: monospace; word-break: break-all; font-size: 0.8rem;">
+                                    ${wallet.address}
+                                </div>
+                            </div>
+                            
+                            <div style="margin: 10px 0;">
+                                <div style="color: var(--text-secondary); font-size: 0.9rem;">余额</div>
+                                <div style="color: var(--accent-glow); font-weight: bold;">
+                                    ${wallet.formatted_balance || wallet.balance || 0} ${wallet.network.startsWith('solana') ? 'SOL' : 'ETH'}
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <button onclick="window.open('${wallet.explorer_url || '#'}', '_blank')" 
+                                        style="background: var(--accent-glow); color: var(--bg-dark); 
+                                               border: none; padding: 8px 15px; border-radius: 15px; cursor: pointer; font-size: 0.8rem;">
+                                    <i class="fas fa-external-link-alt"></i> 区块链浏览器
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                style="background: var(--primary-glow); color: var(--bg-dark); 
+                                       border: none; padding: 10px 30px; border-radius: 25px; cursor: pointer;">
+                            关闭
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 点击背景关闭
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        // 显示区块链部署信息
+        function showBlockchainDeploymentInfo(result) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); display: flex; align-items: center; 
+                justify-content: center; z-index: 10000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: var(--bg-dark); padding: 30px; border-radius: 15px; 
+                    max-width: 500px; width: 90%; border: 1px solid var(--success-glow);
+                    box-shadow: 0 0 30px var(--success-glow);
+                ">
+                    <h3 style="color: var(--text-accent); margin-bottom: 20px; text-align: center;">
+                        <i class="fas fa-check-circle"></i> 数据上链成功
+                    </h3>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <div style="color: var(--text-secondary); margin-bottom: 5px;">交易哈希</div>
+                        <div style="color: var(--success-glow); font-family: monospace; word-break: break-all; font-size: 0.9rem;">
+                            ${result.transaction_hash}
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <div style="color: var(--text-secondary); margin-bottom: 5px;">数据哈希</div>
+                        <div style="color: var(--primary-glow); font-family: monospace; word-break: break-all; font-size: 0.9rem;">
+                            ${result.data_hash}
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <div style="color: var(--text-secondary); margin-bottom: 5px;">存储成本</div>
+                        <div style="color: var(--accent-glow); font-weight: bold;">${result.storage_cost || 0} SOL</div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+                        <button onclick="window.open('${result.explorer_url}', '_blank')" 
+                                style="background: var(--accent-glow); color: var(--bg-dark); 
+                                       border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer;">
+                            <i class="fas fa-external-link-alt"></i> 查看交易
+                        </button>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                style="background: var(--primary-glow); color: var(--bg-dark); 
+                                       border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer;">
+                            确定
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 点击背景关闭
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        // 数据分析功能
+        async function loadAnalyticsData() {
+            if (!currentUserId) return;
+            
+            try {
+                // 加载用户统计数据
+                await Promise.all([
+                    loadCoreMetrics(),
+                    loadUsageTrend(),
+                    loadProjectDistribution(),
+                    loadIncomeExpenseAnalysis(),
+                    loadActivityAnalysis(),
+                    generateGrowthSuggestions()
+                ]);
+            } catch (error) {
+                console.error('加载分析数据失败:', error);
+            }
+        }
+
+        async function loadCoreMetrics() {
+            // 获取用户项目
+            const projectsResponse = await fetch(`/api/user-projects/${currentUserId}`);
+            if (projectsResponse.ok) {
+                const projects = await projectsResponse.json();
+                const completedProjects = projects.filter(p => p.status === 'completed').length;
+                const completionRate = projects.length > 0 ? Math.round((completedProjects / projects.length) * 100) : 0;
+                
+                document.getElementById('analyticsProjectCount').textContent = projects.length;
+                document.getElementById('projectCompletionRate').textContent = `${completionRate}%`;
+            }
+
+            // 获取用户统计
+            const statsResponse = await fetch(`/api/user-stats/${currentUserId}`);
+            if (statsResponse.ok) {
+                const stats = await statsResponse.json();
+                const user = stats.user;
+                
+                // 计算已使用配额（假设总充值 - 当前余额）
+                const quotaUsed = (user.total_recharge || 0) * 2 - (user.api_balance || 0); // 假设1元=2配额
+                document.getElementById('analyticsQuotaUsed').textContent = Math.max(0, quotaUsed);
+                document.getElementById('quotaRemaining').textContent = user.api_balance || 0;
+            }
+
+            // 获取邀请统计
+            const inviteResponse = await fetch(`/api/invitation-stats/${currentUserId}`);
+            if (inviteResponse.ok) {
+                const inviteStats = await inviteResponse.json();
+                document.getElementById('analyticsInvitations').textContent = inviteStats.total_invitations || 0;
+                document.getElementById('invitationRewards').textContent = inviteStats.total_rewards || 0;
+            }
+        }
+
+        async function loadUsageTrend() {
+            // 模拟7天使用趋势数据
+            const trendData = [
+                { day: '周一', usage: 20 },
+                { day: '周二', usage: 35 },
+                { day: '周三', usage: 28 },
+                { day: '周四', usage: 45 },
+                { day: '周五', usage: 60 },
+                { day: '周六', usage: 25 },
+                { day: '周日', usage: 15 }
+            ];
+
+            renderUsageTrendChart(trendData);
+        }
+
+        function renderUsageTrendChart(data) {
+            const container = document.getElementById('usageTrendChart');
+            const maxUsage = Math.max(...data.map(d => d.usage));
+            
+            container.innerHTML = `
+                <div style="display: flex; align-items: end; justify-content: space-around; height: 250px; padding: 20px;">
+                    ${data.map(day => `
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                            <div style="
+                                height: ${(day.usage / maxUsage) * 200}px;
+                                width: 30px;
+                                background: linear-gradient(to top, var(--primary-glow), var(--accent-glow));
+                                border-radius: 4px;
+                                position: relative;
+                                transition: all 0.3s ease;
+                            " onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                <div style="
+                                    position: absolute;
+                                    top: -25px;
+                                    left: 50%;
+                                    transform: translateX(-50%);
+                                    background: rgba(0,0,0,0.8);
+                                    color: white;
+                                    padding: 4px 8px;
+                                    border-radius: 4px;
+                                    font-size: 0.8rem;
+                                    opacity: 0;
+                                    transition: opacity 0.3s ease;
+                                " class="chart-tooltip">${day.usage}配额</div>
+                            </div>
+                            <span style="font-size: 0.8rem; color: var(--text-secondary);">${day.day}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // 添加悬停效果
+            container.querySelectorAll('[onmouseover]').forEach(bar => {
+                bar.addEventListener('mouseenter', function() {
+                    this.querySelector('.chart-tooltip').style.opacity = '1';
+                });
+                bar.addEventListener('mouseleave', function() {
+                    this.querySelector('.chart-tooltip').style.opacity = '0';
+                });
+            });
+        }
+
+        async function loadProjectDistribution() {
+            try {
+                const projectsResponse = await fetch(`/api/user-projects/${currentUserId}`);
+                if (projectsResponse.ok) {
+                    const projects = await projectsResponse.json();
+                    
+                    const statusCounts = {
+                        pending: projects.filter(p => p.status === 'pending').length,
+                        'in_progress': projects.filter(p => p.status === 'in_progress').length,
+                        completed: projects.filter(p => p.status === 'completed').length
+                    };
+
+                    renderProjectDistributionChart(statusCounts);
+                }
+            } catch (error) {
+                console.error('加载项目分布失败:', error);
+            }
+        }
+
+        function renderProjectDistributionChart(statusCounts) {
+            const container = document.getElementById('projectDistributionChart');
+            const total = Object.values(statusCounts).reduce((a, b) => a + b, 0);
+            
+            if (total === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: var(--text-secondary);">
+                        <i class="fas fa-chart-pie" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                        <p>暂无项目数据</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const colors = {
+                pending: 'var(--warning-glow)',
+                'in_progress': 'var(--accent-glow)',
+                completed: 'var(--success-glow)'
+            };
+
+            const labels = {
+                pending: '待开始',
+                'in_progress': '进行中',
+                completed: '已完成'
+            };
+
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; height: 100%;">
+                    <!-- 简化的饼图 -->
+                    <div style="position: relative; width: 150px; height: 150px; margin-bottom: 20px;">
+                        ${Object.entries(statusCounts).map(([status, count], index) => {
+                            const percentage = (count / total) * 100;
+                            const angle = (count / total) * 360;
+                            return `
+                                <div style="
+                                    position: absolute;
+                                    width: 150px;
+                                    height: 150px;
+                                    border-radius: 50%;
+                                    background: conic-gradient(
+                                        ${colors[status]} 0deg ${angle}deg,
+                                        transparent ${angle}deg 360deg
+                                    );
+                                    transform: rotate(${index * 120}deg);
+                                " title="${labels[status]}: ${count}个 (${percentage.toFixed(1)}%)"></div>
+                            `;
+                        }).join('')}
+                        <div style="
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            background: var(--bg-dark);
+                            width: 80px;
+                            height: 80px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-weight: bold;
+                            color: var(--text-accent);
+                        ">${total}</div>
+                    </div>
+
+                    <!-- 图例 -->
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        ${Object.entries(statusCounts).map(([status, count]) => `
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 12px; height: 12px; background: ${colors[status]}; border-radius: 2px;"></div>
+                                <span style="font-size: 0.9rem;">${labels[status]}: ${count}个</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadIncomeExpenseAnalysis() {
+            try {
+                // 模拟收支数据
+                const income = {
+                    recharge: 200,
+                    invite: 150,
+                    share: 80
+                };
+                
+                const totalIncome = Object.values(income).reduce((a, b) => a + b, 0);
+                const totalExpense = 180; // 模拟支出
+
+                document.getElementById('totalIncome').textContent = totalIncome;
+                document.getElementById('totalExpense').textContent = totalExpense;
+                document.getElementById('rechargeIncome').textContent = `${income.recharge}配额`;
+                document.getElementById('inviteIncome').textContent = `${income.invite}配额`;
+                document.getElementById('shareIncome').textContent = `${income.share}配额`;
+            } catch (error) {
+                console.error('加载收支分析失败:', error);
+            }
+        }
+
+        async function loadActivityAnalysis() {
+            try {
+                // 模拟活跃度数据
+                const activity = {
+                    loginDays: 15,
+                    developmentCount: 8,
+                    shareActivity: 65
+                };
+
+                document.getElementById('loginDays').textContent = `${activity.loginDays}天`;
+                document.getElementById('developmentCount').textContent = `${activity.developmentCount}次`;
+                document.getElementById('shareActivity').textContent = `${activity.shareActivity}%`;
+
+                // 更新进度条
+                document.getElementById('loginProgress').style.width = `${Math.min(activity.loginDays * 3.33, 100)}%`;
+                document.getElementById('developmentProgress').style.width = `${Math.min(activity.developmentCount * 10, 100)}%`;
+                document.getElementById('shareProgress').style.width = `${activity.shareActivity}%`;
+            } catch (error) {
+                console.error('加载活跃度分析失败:', error);
+            }
+        }
+
+        async function generateGrowthSuggestions() {
+            // 基于用户数据生成智能建议
+            const suggestions = [
+                {
+                    icon: 'fas fa-rocket',
+                    title: '提升开发效率',
+                    content: '建议您尝试使用快速验证模式，可以更快地测试AI开发功能',
+                    action: '去体验',
+                    color: 'var(--primary-glow)'
+                },
+                {
+                    icon: 'fas fa-users',
+                    title: '邀请更多朋友',
+                    content: '您的邀请转化率很高！继续分享可以获得更多配额奖励',
+                    action: '去分享',
+                    color: 'var(--success-glow)'
+                },
+                {
+                    icon: 'fas fa-crown',
+                    title: '升级VIP会员',
+                    content: '成为VIP会员可以享受更多特权，包括免费部署和上链服务',
+                    action: '了解VIP',
+                    color: 'var(--accent-glow)'
+                }
+            ];
+
+            const container = document.getElementById('growthSuggestions');
+            container.innerHTML = suggestions.map(suggestion => `
+                <div class="glass" style="padding: 20px; margin: 15px 0; display: flex; align-items: center; gap: 20px;">
+                    <div style="font-size: 2rem; color: ${suggestion.color};">
+                        <i class="${suggestion.icon}"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <h4 style="color: var(--text-accent); margin-bottom: 8px;">${suggestion.title}</h4>
+                        <p style="color: var(--text-secondary); margin-bottom: 0; line-height: 1.4;">${suggestion.content}</p>
+                    </div>
+                    <button class="btn" style="background: ${suggestion.color}; color: var(--bg-dark); padding: 10px 20px;">
+                        ${suggestion.action}
+                    </button>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
