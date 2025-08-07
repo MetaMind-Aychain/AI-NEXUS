@@ -315,10 +315,10 @@ users:
 
 ## 📞 联系方式
 
-- **作者**: Sinya(WELLTELL)
-- **邮箱**: [联系邮箱]
-- **GitHub**: [GitHub主页]
-- **项目地址**: [项目仓库]
+- **作者**: MetaMind-Aychain
+- **邮箱**: [HiddenFeng@outlook.com]
+- **GitHub**: [https://github.com/MetaMind-Aychain]
+- **项目地址**: [https://github.com/MetaMind-Aychain/AI-NEXUS]
 
 ## 🙏 致谢
 

@@ -315,10 +315,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact Information
 
-- **Author**: Sinya(WELLTELL)
-- **Email**: [Contact Email]
-- **GitHub**: [GitHub Profile]
-- **Project URL**: [Repository URL]
+- **Author**: MetaMind-Aychain
+- **Email**: [HiddenFeng@outlook.com]
+- **GitHub**: [https://github.com/MetaMind-Aychain]
+- **Project URL**: [https://github.com/MetaMind-Aychain/AI-NEXUS]
 
 ## 🙏 Acknowledgments
 
