@@ -81,10 +81,11 @@ class ConfigManager:
         """获取默认配置"""
         return {
            "openai": {
-                "api_key": os.getenv("OPENAI_API_KEY", ""),
-                "model": "generalv3.5",
+                 "api_key": os.getenv("OPENAI_API_KEY", ""),
+                "model": os.getenv("OPENAI_MODEL", ""),
                 "max_tokens": 4000,
-                "temperature": 0.7,        "BASE_URL":"https://spark-api-open.xf-yun.com/v1"
+                "temperature": 0.7,        
+                "BASE_URL":os.getenv("OPENAI_BASE_URL", ""),
             },
             "platform": {
                 "host": "127.0.0.1",
